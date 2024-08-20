@@ -1,0 +1,25 @@
+$mainwhite-color: #f8f8f8;
+.Add-main-div{
+    width: 100%;
+   background-color: $mainwhite-color;
+  
+    height: auto;
+.addtemplate-letter{
+    width: 100%;
+    display: flex;
+    justify-content:center ;
+    align-items: center;
+   padding-top: 50px;
+
+    .additem{
+      font-size: 30px;
+      font-family: sans-serif;
+      font-weight: 600;
+      color: teal;
+    }
+}
+.Add-templ-func{
+    margin: 50px;
+    margin-right: 8rem;
+}
+}

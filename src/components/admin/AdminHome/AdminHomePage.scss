@@ -1,0 +1,54 @@
+$secondwhite-color: #fefefe;
+$wrap-color: #ffffff;
+$teal-color: rgb(160, 195, 195);
+
+.home-div {
+  padding: 30px;
+  padding-left: 40px;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: $teal-color;
+
+  .top-wraps {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-bottom: 20px;
+
+    .wrap {
+      background-color: $wrap-color;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      width: 200px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+      h3 {
+        font-size: 20px;
+        color: $teal-color;
+      }
+
+      p {
+        font-size: 18px;
+        color: gray;
+      }
+    }
+  }
+
+  .chart-container {
+
+    width: 100%;
+    max-width: 800px;
+    margin-top: 6rem;
+  }
+
+  .head-2 {
+    width: 100%;
+    height: 100px;
+    background-color: rgb(228, 228, 237);
+    padding-left: 50px;
+  }
+}
