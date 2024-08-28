@@ -266,9 +266,7 @@ export default function Hire() {
       }
   
       
-      const result = await stripe.redirectToCheckout({
-        sessionId: response.data.sessionId,
-      });
+       
   
       if (result.error) {
         console.error("Stripe redirect error:", result.error.message);
