@@ -14,9 +14,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/quickwork': {
-        target: 'https://saleeque.online',
+        target: 'https://www.saleeque.online',
         changeOrigin: true,
-        secure: true, 
+        secure: true,
       },
     },
     watch: {
@@ -27,3 +27,5 @@ export default defineConfig({
     include: ['react-easy-crop'],
   },
 });
+
+
