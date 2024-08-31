@@ -263,7 +263,7 @@ const handleVideoChange = (e) => {
       sharedLinks: [
         {
           name: 'Copy link',
-          url:`http://localhost:3000/room/${chat._id}`
+          url:`${config.VITE_APP_URL}/room/${chat._id}`
         },
       ],
       scenario: {
