@@ -1,9 +1,13 @@
-import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { clientAxiosInstance } from "../../utils/api/privateAxios";
 import Rating from "../../components/uic/Rating";
-import { browseSubmitted ,acceptjobsubmit ,rejectJobSubmit } from "../../utils/api/api";
+import {
+  browseSubmitted,
+  acceptjobsubmit,
+  rejectJobSubmit,
+} from "../../utils/api/api";
+import { toast } from "react-toastify";
 
 export default function ViewSubmittedContract() {
   const [contractData, setContractData] = useState(null);
@@ -14,7 +18,9 @@ export default function ViewSubmittedContract() {
   useEffect(() => {
     const fetchContract = async () => {
       try {
-        const res = await clientAxiosInstance.get(`${browseSubmitted}?id=${id}`);
+        const res = await clientAxiosInstance.get(
+          `${browseSubmitted}?id=${id}`
+        );
         console.log(res.data);
         if (res.data) {
           setContractData(res.data);
@@ -42,26 +48,32 @@ export default function ViewSubmittedContract() {
     }
   }, [contractData]);
 
-  const handleAccept = async() => {
-      try {
-        const data={
-            contractId:contractData.contractId._id,
-            jobId:contractData.jobId._id,
-            userId:contractData.userId._id,
-            jobsubmission:id
-        }
-       const res = await clientAxiosInstance.post(acceptjobsubmit,data)
-       console.log(res.data,"gyg");
-       
-    
-   } catch (error) {
-    error(error,"error in handle accept")
-   }
+  const handleAccept = async () => {
+    try {
+      const data = {
+        contractId: contractData.contractId._id,
+        jobId: contractData.jobId._id,
+        userId: contractData.userId._id,
+        jobsubmission: id,
+      };
+      const res = await clientAxiosInstance.post(acceptjobsubmit, data);
+      if (res.data) {
+        toast.success("success", {
+          autoClose: 1000,
+          closeButton: true,
+          draggable: true,
+        });
+        setTimeout(() => {
+          navigate(`/client/rating/${res.data.userId}/${res.data.jobId}`);
+        }, 2000);
+      }
+    } catch (error) {
+      console.error(error, "error in handle accept");
+    }
   };
 
-  const handleReject = async() => {
-    const res = await clientAxiosInstance.post(rejectJobSubmit)
-   
+  const handleReject = async () => {
+    const res = await clientAxiosInstance.post(rejectJobSubmit);
   };
 
   return (
@@ -122,10 +134,10 @@ export default function ViewSubmittedContract() {
               <h3 className="text-lg font-semibold text-gray-700">
                 Additional Details
               </h3>
-              <p className="text-gray-500">
+              {/* <p className="text-gray-500">
                 {contractData?.additionalDetails ||
                   "Any additional details about the contract"}
-              </p>
+              </p> */}
               <div className="m-5">
                 {fileUrl && (
                   <>
@@ -147,22 +159,24 @@ export default function ViewSubmittedContract() {
                 )}
               </div>
             </div>
-
             {/* Accept and Reject Buttons */}
-            <div className="flex justify-end space-x-4 mt-8">
-              <button
-                onClick={handleReject}
-                className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
-              >
-                Reject
-              </button>
-              <button
-                onClick={handleAccept}
-                className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-              >
-                Accept
-              </button>
-            </div>
+         
+            {contractData?.status !== "accept" && (
+              <div className="flex justify-end space-x-4 mt-8">
+                <button
+                  onClick={handleReject}
+                  className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+                >
+                  Reject
+                </button>
+                <button
+                  onClick={handleAccept}
+                  className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                >
+                  Accept
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@ export default function Star() {
   const { id } = useParams()
   return (
     <div>
-        <StarRating jobId={id}/>
+        <StarRating jobId={id} layout={'user'} userId={null}/>
     </div>
   )
 }

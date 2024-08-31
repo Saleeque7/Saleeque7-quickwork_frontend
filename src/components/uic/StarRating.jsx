@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { FaStar } from "react-icons/fa";
-import { userAxiosInstance } from "../../utils/api/privateAxios";
-import { recruiterRating } from "../../utils/api/api";
+import { userAxiosInstance ,clientAxiosInstance } from "../../utils/api/privateAxios";
+import { recruiterRating , freelanceRating } from "../../utils/api/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-export default function ReviewAndRating({ jobId }) {
+export default function ReviewAndRating({ jobId ,layout , userId }) {
   const [rating, setRating] = useState(null);
   const [comment, setComment] = useState("");
   const [error, setError] = useState("");
@@ -12,6 +12,7 @@ export default function ReviewAndRating({ jobId }) {
   const getStarColor = (currentRating) => {
     return currentRating <= rating ? "text-yellow-500" : "text-gray-300";
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,8 +22,6 @@ export default function ReviewAndRating({ jobId }) {
       return;
     }
     setError("");
-    console.log("Rating:", rating);
-    console.log("Comment:", comment);
     try {
       const data = {
         rating,
@@ -48,6 +47,43 @@ export default function ReviewAndRating({ jobId }) {
       console.error("error in rating client");
     }
   };
+
+  const handleClientSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!rating || !comment.trim()) {
+      setError("Please provide both a rating and a comment.");
+      return;
+    }
+    setError("");
+    try {
+      const data = {
+        rating,
+        comment,
+        jobId,
+        userId
+      };
+
+      const res = await clientAxiosInstance.post(freelanceRating, data);
+      if (res.data) {
+        toast.success("success", {
+          autoClose: 1000,
+          closeButton: true,
+          draggable: true,
+        });
+        setRating(null);
+        setComment("")
+        setTimeout(() => {
+            navigate("/client/home");
+          }, 2000);
+       
+      }
+    } catch (error) {
+      console.error("error in rating client");
+    }
+  };
+
+ 
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -77,17 +113,19 @@ export default function ReviewAndRating({ jobId }) {
           })}
         </div>
         {error && <div className="text-red-500 text-center mb-4">{error}</div>}
-        <form onSubmit={handleSubmit} className="w-full">
+        <form onSubmit={layout === 'user' ? handleSubmit : handleClientSubmit} className="w-full">
           <textarea
             rows="4"
             placeholder="Leave your comment here..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             className="w-full p-2 border rounded-md mb-4"
+            required
           />
           <button
             type="submit"
             className="px-6 py-2 bg-teal-700 text-white rounded-md hover:bg-teal-500 w-full"
+            disabled={!comment}
           >
             Submit Review
           </button>

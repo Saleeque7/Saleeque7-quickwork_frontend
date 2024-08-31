@@ -3,6 +3,7 @@ import { userAxiosInstance } from "../../utils/api/privateAxios";
 import { clientdataApi,  } from "../../utils/api/api";
 import Avatar from "react-avatar";
 
+
 export default function Conversation({
   data,
   user,
@@ -59,7 +60,7 @@ export default function Conversation({
         )}
       </div>
       <hr
-        style={{ width: "85%", border: "0.1px solid #ececec" }}
+        style={{ width: "100%", border: "0.1px solid #ececec" }}
         className="my-2"
       />
     </>

@@ -17,6 +17,8 @@ import { BiImageAdd } from "react-icons/bi";
 import { AiOutlineAudio } from "react-icons/ai";
 import { FaMicrophone } from "react-icons/fa";
 import { MessageTimestamp } from "../uic/MessageTimeStamp";
+import { MdOutlineVideocam } from "react-icons/md";
+import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
 
 export default function ChatBox({
   chat,
@@ -120,7 +122,7 @@ export default function ChatBox({
         type: "text",
         message: newmessages,
         chatId: chat._id,
-        read:false
+        read: false,
       };
 
       const receiverId = chat.members.find((id) => id !== user);
@@ -149,7 +151,6 @@ export default function ChatBox({
       console.log(key, value);
     }
 
-  
     try {
       let URI;
 
@@ -193,14 +194,13 @@ export default function ChatBox({
   // Receive Message from parent component
   useEffect(() => {
     console.log("Message Arrived in user: ", receivedMessage);
-  
+
     // Check if receivedMessage and chat are defined
     if (receivedMessage && chat && receivedMessage.chatId === chat._id) {
-      setMessages(prevMessages => [...prevMessages, receivedMessage]);
-     
+      setMessages((prevMessages) => [...prevMessages, receivedMessage]);
     }
   }, [receivedMessage, chat]);
-  
+
   const handleStartRecording = () => {
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices
@@ -236,13 +236,15 @@ export default function ChatBox({
       setIsRecording(false);
     }
   };
+  const handleVideoCall = () => {};
 
   return (
     <>
-      <div className="bg-white rounded-lg grid grid-rows-[14vh_60vh_13vh]">
+      <div className="bg-white  rounded-lg grid grid-rows-[14vh_60vh_13vh]">
         {chat ? (
           <>
-            <div className="p-4 flex flex-col">
+          <div>
+            <div className="p-4 flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Avatar
                   name={clientData?.name || "User"}
@@ -254,18 +256,26 @@ export default function ChatBox({
                   <span>{clientData?.name}</span>
                 </div>
               </div>
+              {/* Video Call Icon */}
+              <div className="flex items-center space-x-4">
+                <MdOutlineVideocam
+                  className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
+                  onClick={handleVideoCall}
+                />
+              </div>
+            </div>
               <hr className="w-[95%] border-t-[0.1px] border-gray-300 mt-5" />
             </div>
-            <div className="flex flex-col gap-2 p-6 overflow-y-scroll">
+            <div className="flex flex-col gap-2 p-6 overflow-y-scroll ">
               {messages.map((message, index) => (
                 <div
                   key={index}
                   ref={scroll}
-                  className={`flex flex-col gap-2  px-5  py-1 rounded-xl max-w-lg w-fit
+                  className={`flex flex-col gap-2  px-5  py-2 rounded-xl max-w-lg w-fit
                    ${
                      message?.senderId === user
-                       ? "self-end  rounded-br-none"
-                       : " rounded-bl-none text-teal-600"
+                       ? "self-end  rounded-br-none bg-green-100"
+                       : " rounded-bl-none text-teal-600 bg-gray-100"
                    }`}
                 >
                   {message.type === "text" ? (
@@ -274,7 +284,7 @@ export default function ChatBox({
                     <img
                       src={message?.file?.location}
                       alt="sent-image"
-                      className="max-w-80 max-h-80 object-cover rounded border border-gray-100"
+                      className="max-w-80 max-h-80 object-cover rounded border mt-4 border-gray-100"
                       loading="lazy"
                     />
                   ) : message.type === "audio" ? (
@@ -289,12 +299,20 @@ export default function ChatBox({
                     <video
                       controls
                       src={message?.file?.location}
-                      className=" max-w-80 max-h-80 rounded"
+                      className=" max-w-80 max-h-80 mt-4 rounded"
                     >
                       Your browser does not support the video tag.
                     </video>
                   ) : null}
-                  <MessageTimestamp createdAt={message.createdAt} />
+                  <div
+                    className={`${
+                      message?.senderId === user
+                        ? "text-right text-gay-100"
+                        : "text-left text-gray-500"
+                    }`}
+                  >
+                    <MessageTimestamp createdAt={message.createdAt} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -391,25 +409,24 @@ export default function ChatBox({
                       />
                     </div>
                   )}
-                 
                 </div>
               )}
               <div className="absolute bottom-16 left-2 bg-white shadow-lg rounded-md p-2 flex flex-col space-y-2">
-              {recordedAudio && (
-                    <div className="relative p-2 border border-gray-300 rounded-md mt-2 max-w-[350px] max-h-[350px] overflow-hidden">
-                      <audio controls>
-                        <source
-                          src={URL.createObjectURL(recordedAudio)}
-                          type={recordedAudio.type}
-                        />
-                        Your browser does not support the audio element.
-                      </audio>
-                      <MdOutlineClose
-                        onClick={() => setRecordedAudio(null)}
-                        className="absolute top-0 right-0 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+                {recordedAudio && (
+                  <div className="relative p-2 border border-gray-300 rounded-md mt-2 max-w-[350px] max-h-[350px] overflow-hidden">
+                    <audio controls>
+                      <source
+                        src={URL.createObjectURL(recordedAudio)}
+                        type={recordedAudio.type}
                       />
-                    </div>
-                  )}
+                      Your browser does not support the audio element.
+                    </audio>
+                    <MdOutlineClose
+                      onClick={() => setRecordedAudio(null)}
+                      className="absolute top-0 right-0 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
 
               <div

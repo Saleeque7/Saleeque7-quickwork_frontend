@@ -16,6 +16,8 @@ import Bills from "../pages/client/Bills";
 import SuccessPage from "../pages/client/SuccessPage"
 import CancelPage  from "../pages/client/CancelPage"
 import ViewSubmittedContract from "../pages/client/ViewSubmittedContract";
+import NotFoundPage from "../pages/404/NotFoundPage ";
+import StarRate from "../pages/client/StarRate";
 import { useSelector } from "react-redux";
 const ClientRoute = () => {
   const client = useSelector((state) => state.persisted.client.client);
@@ -40,6 +42,9 @@ const ClientRoute = () => {
       <Route path="/success/:id" element={<SuccessPage />} />
       <Route path="/cancel" element={<CancelPage />} />
       <Route path="/viewSubmitted/:id" element={<ViewSubmittedContract />} />
+      <Route path="/rating/:id/:jobId" element={<StarRate />} />
+      <Route path="*" element={<NotFoundPage />} />
+
       </Routes>
       <Footer/>
     </>

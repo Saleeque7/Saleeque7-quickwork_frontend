@@ -6,6 +6,7 @@ import UserRoute from './routes/userRoute';
 import ClientRoute from './routes/ClientRoutes';
 import AdminRoute from './routes/AdminRoute';
 import LandingRoute from "./routes/landingRoute";
+import NotFoundPage from './pages/404/NotFoundPage ';
 
 
 import { UserProtectedRoute, ClientProtectedRoute, AdminProtectedRoute  } from './utils/middleWare/ProtectedRoute';
@@ -26,6 +27,7 @@ function App() {
       <Route element={<AdminProtectedRoute />}>
         <Route path="/admin/*" element={<AdminRoute />} />
         </Route>
+         <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

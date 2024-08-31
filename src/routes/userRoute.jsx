@@ -16,6 +16,7 @@ import Message from "../pages/user/Message";
 import ViewProposal from "../pages/user/ViewProposal";
 import ViewuserProfile from "../pages/user/ViewuserProfile";
 import Star from "../pages/user/Star";
+import NotFoundPage from "../pages/404/NotFoundPage ";
 
 const UserRoute = () => {
   const user = useSelector((state) => state.persisted.user.user);
@@ -39,7 +40,7 @@ const UserRoute = () => {
         <Route path="/viewproposal/:id" element={<ViewProposal />} />
         <Route path="/viewprofile" element={<ViewuserProfile />} />
         <Route path="/rating/:id" element={<Star />} />
-        
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Footer/>
     </>

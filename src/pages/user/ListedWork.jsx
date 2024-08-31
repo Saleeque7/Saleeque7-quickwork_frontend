@@ -12,6 +12,7 @@ import { FaHourglassHalf, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import { format } from "timeago.js";
 import debounce from "lodash.debounce";
 import { Pagination } from "../../components/user/Pagination";
+import ConfirmationModal from "../../components/user/ConformationModal";
 
 export default function ListedWork() {
   const [activeminTab, setActiveminTab] = useState("All Contracts");
@@ -23,6 +24,8 @@ export default function ListedWork() {
   const [totalPagesContracts, setTotalPagesContracts] = useState(1);
   const [currentPageProposals, setCurrentPageProposals] = useState(1);
   const [totalPagesProposals, setTotalPagesProposals] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [proposalIdToDelete, setProposalIdToDelete] = useState(null);
   const navigate = useNavigate();
 
   const fetchContracts = useCallback(
@@ -84,9 +87,14 @@ export default function ListedWork() {
   };
 
   const handleDelete = async (id) => {
+    setProposalIdToDelete(id);
+    setIsModalOpen(true);
+  };
+
+  const confirmDelete = async (id) => {
     try {
       const res = await userAxiosInstance.delete(
-        `${deleteProposalApi}?id=${id}`
+        `${deleteProposalApi}?id=${proposalIdToDelete}`
       );
       if (res.data) {
         setProposals((prevProposals) =>
@@ -96,6 +104,9 @@ export default function ListedWork() {
       }
     } catch (error) {
       console.error("Error in handleDelete:", error);
+    }finally {
+      setIsModalOpen(false);
+      setProposalIdToDelete(null);
     }
   };
 
@@ -176,26 +187,28 @@ export default function ListedWork() {
                           </p>
                         </div>
                         <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-2">
-                          {contract?.contractStatus === "pending" ? (
-                            <>
-                              <FaHourglassHalf className="text-md text-yellow-500" />
-                              <span className="text-yellow-500">Pending</span>
-                            </>
-                          ) : contract?.contractStatus === "completed" ? (
-                            <>
-                              <FaCheckCircle className="text-md text-green-500" />
-                              <span className="text-green-500">Completed</span>
-                            </>
-                          ) : contract?.contractStatus === "dismissed" ? (
-                            <>
-                              <FaTimesCircle className="text-md text-red-500" />
-                              <span className="text-red-500">Dismissed</span>
-                            </>
-                          ) : (
-                            <span className="text-gray-700">Unknown</span>
-                          )}
-                        </div>
+                          <div className="flex items-center space-x-2">
+                            {contract?.contractStatus === "pending" ? (
+                              <>
+                                <FaHourglassHalf className="text-md text-yellow-500" />
+                                <span className="text-yellow-500">Pending</span>
+                              </>
+                            ) : contract?.contractStatus === "completed" ? (
+                              <>
+                                <FaCheckCircle className="text-md text-green-500" />
+                                <span className="text-green-500">
+                                  Completed
+                                </span>
+                              </>
+                            ) : contract?.contractStatus === "dismissed" ? (
+                              <>
+                                <FaTimesCircle className="text-md text-red-500" />
+                                <span className="text-red-500">Dismissed</span>
+                              </>
+                            ) : (
+                              <span className="text-gray-700">Unknown</span>
+                            )}
+                          </div>
                           <button
                             className="px-8 py-2 text-teal-500 rounded-md hover:bg-teal-600 hover:text-white focus:outline-none"
                             onClick={() => handleView(contract._id)}
@@ -290,6 +303,11 @@ export default function ListedWork() {
                         >
                           <FaTrashAlt className="w-5 h-5" />
                         </button>
+                        <ConfirmationModal
+                          isOpen={isModalOpen}
+                          onClose={() => setIsModalOpen(false)}
+                          onConfirm={confirmDelete}
+                        />
                       </div>
                     </div>
                   ))}

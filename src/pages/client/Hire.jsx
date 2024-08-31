@@ -265,7 +265,9 @@ export default function Hire() {
         throw new Error("Failed to create Stripe payment session");
       }
   
-      
+      const result = await stripe.redirectToCheckout({
+        sessionId: response.data.sessionId,
+      });
        
   
       if (result.error) {

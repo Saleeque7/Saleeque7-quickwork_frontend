@@ -427,7 +427,7 @@ export default function Joblisted() {
                               <FaHourglassHalf className="text-md text-yellow-500" />
                               <span className="text-yellow-500">Pending</span>
                             </>
-                          ) : contract?.status === "accepted" ? (
+                          ) : contract?.status === "accept" ? (
                             <>
                               <FaCheckCircle className="text-md text-green-500" />
                               <span className="text-green-500">Accepted</span>

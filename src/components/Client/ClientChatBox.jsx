@@ -18,8 +18,11 @@ import { BiImageAdd } from "react-icons/bi";
 import { AiOutlineAudio } from "react-icons/ai";
 import { MessageTimestamp } from "../uic/MessageTimeStamp";
 import { FaMicrophone } from "react-icons/fa";
+import { MdOutlineVideocam } from "react-icons/md";
+import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { config } from "../../config/config";
 
-export default function ClientChatBox({ chat,client,setSendMessage,receivedMessage }) {
+export default function ClientChatBox({ chat,client,setSendMessage,receivedMessage,clientName }) {
 
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -37,7 +40,8 @@ export default function ClientChatBox({ chat,client,setSendMessage,receivedMessa
   const imageRef = useRef();
   const audioRef = useRef();
   const videoRef = useRef();
-
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
+  const videoCallContainer = useRef();
 
   useEffect(() => {
     const fetchusersData = async () => {
@@ -238,12 +242,48 @@ const handleVideoChange = (e) => {
       setIsRecording(false);
     }
   };
+
+  const startVideoCall = async () => {
+    setIsVideoCallActive(true);
+    const appID = config.VITE_ZEGO_APP_ID;
+    const serverSecret = config.VITE_ZEGO_SERVER_SECRET;
+
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+      appID,
+      serverSecret,
+      chat._id,
+      client,
+      clientName
+    );
+
+    const zegoUIKitPrebuilt = ZegoUIKitPrebuilt.create(kitToken);
+
+    zegoUIKitPrebuilt.joinRoom({
+      container: videoCallContainer.current,
+      sharedLinks: [
+        {
+          name: 'Copy link',
+          url:`http://localhost:3000/room/${chat._id}`
+        },
+      ],
+      scenario: {
+        mode: ZegoUIKitPrebuilt.OneONoneCall,
+      },
+      onLeaveRoom: () => {
+       setIsVideoCallActive(false); 
+        videoCallContainer.current.innerHTML = ''; 
+      },
+    });
+  };
+
+
   return (
     <>
       <div className="bg-white rounded-lg grid grid-rows-[14vh_60vh_13vh]">
         {chat ? (
           <>
-            <div className="p-4 flex flex-col">
+          <div>
+            <div className="p-4 flex items-center justify-between">
               <div className="flex items-center space-x-4">
                 <Avatar
                   name={userData?.name || "User"}
@@ -255,6 +295,13 @@ const handleVideoChange = (e) => {
                   <span>{userData?.name}</span>
                 </div>
               </div>
+              <div className="flex items-center space-x-4">
+                  <MdOutlineVideocam
+                    className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
+                    onClick={startVideoCall} 
+                  />
+                </div>
+            </div>
               <hr className="w-[95%] border-t-[0.1px] border-gray-300 mt-5" />
             </div>
             <div className="flex flex-col gap-2 p-6 overflow-y-scroll">
@@ -264,14 +311,14 @@ const handleVideoChange = (e) => {
                   ref={scroll}
                   className={`flex flex-col gap-2  px-5  py-1 rounded-xl max-w-lg w-fit ${
                     message.senderId === client
-                      ? "self-end  rounded-br-none"
-                      : " rounded-bl-none  text-teal-600"
+                       ? "self-end  rounded-br-none bg-green-100"
+                       : " rounded-bl-none text-teal-600 bg-gray-100"
                   }`}
                 >
                     {message.type === "text" ? (
                   <span>{message?.message}</span>
                 ) : message.type === "image" ? (
-                  <img src={message?.file?.location} alt="sent-image" className="max-w-80 max-h-80 rounded" />
+                  <img src={message?.file?.location} alt="sent-image" className="max-w-80 max-h-80 rounded mt-4" />
                 ) : message.type === "audio" ? (
                   <audio controls src={message?.file?.location} >
                     Your browser does not support the audio tag.
@@ -281,11 +328,19 @@ const handleVideoChange = (e) => {
                     Your browser does not support the audio tag.
                   </audio>
                 ) : message.type === "video" ? (
-                  <video controls src={message?.file?.location} className="max-w-80 max-h-80 rounded">
+                  <video controls src={message?.file?.location} className="max-w-80 max-h-80 mt-4 rounded">
                     Your browser does not support the video tag.
                   </video>
                 ) : null}
+                 <div
+                    className={`${
+                      message?.senderId === client
+                        ? "text-right text-gay-100"
+                        : "text-left text-gray-500"
+                    }`}
+                  >
                  <MessageTimestamp createdAt={message.createdAt} />
+                  </div>
                 </div>
               ))}
             </div>
@@ -438,6 +493,12 @@ const handleVideoChange = (e) => {
         </span>
       )}
       </div>
+      {isVideoCallActive &&
+      (<div
+        ref={videoCallContainer}
+       className="video-call-container"
+      ></div>)
+      }
     </>
   );
 }

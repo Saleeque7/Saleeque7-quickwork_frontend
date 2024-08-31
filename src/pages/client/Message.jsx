@@ -180,7 +180,7 @@ useEffect(() => {
               client={client._id}
               setSendMessage={setSendMessage}
               receivedMessage={receivedMessage}
-        
+              clientName={client.name}
             />
           </div>
         </div>

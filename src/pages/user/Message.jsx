@@ -197,8 +197,7 @@ useEffect(() => {
               chat={currentChat}
               user={user._id}
               setSendMessage={setSendMessage}
-              receivedMessage={receivedMessage}
-        
+              receivedMessage={receivedMessage}        
             />
           </div>
         </div>

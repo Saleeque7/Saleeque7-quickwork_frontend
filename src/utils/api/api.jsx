@@ -76,6 +76,7 @@ export const browseSubmittedApi = `${CLIENT_API_URL}/submittedContract`
 export const stripePaymentApi = `${CLIENT_API_URL}/stripePayment`
 export const browseTransaction = `${CLIENT_API_URL}/transaction`
 export const fetchTransactionsApi = `${CLIENT_API_URL}/alltransaction`
+export const fetchWalletApi = `${CLIENT_API_URL}/wallettransaction`
 export const browseSubmitted = `${CLIENT_API_URL}/browseSubmitted`
 export const acceptjobsubmit = `${CLIENT_API_URL}/acceptJobSubmit`
 export const rejectJobSubmit = `${CLIENT_API_URL}/rejectJobSubmit`
@@ -87,6 +88,8 @@ export const getClientMessageapi = `${CLIENT_API_URL}/getclientmessage`
 export const addClientMessageapi = `${CLIENT_API_URL}/addclientmessage`
 export const clientcountUnreadMessages = `${CLIENT_API_URL}/clientunReadmessages`
 export const clientmarkasReadMessages = `${CLIENT_API_URL}/clientmarkAsRead`
+export const freelanceRating = `${CLIENT_API_URL}/rating`
+
 
 export const clientaddImageFilemessageApi = `${CLIENT_API_URL}/addImagemessages`
 export const clientaddAudioFilemessageApi = `${CLIENT_API_URL}/addAudiomessages`
