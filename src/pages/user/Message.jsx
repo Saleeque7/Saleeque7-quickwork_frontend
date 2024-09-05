@@ -17,7 +17,7 @@ export default function Message() {
   const [sendmessage, setSendMessage] = useState(null);
   const [receivedMessage, setReceivedMessage] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
- 
+  const [typingUsers, setTypingUsers] = useState([]);
 
   const socket = useRef();
 
@@ -26,15 +26,20 @@ export default function Message() {
       try {
         const res = await userAxiosInstance.get(userChatsApi);
         setChats(res.data);
-
+        console.log(res.data,"in user side chat api");
+        
         const counts = {};
+        console.log(counts,"in user side chat api below count");
+        
         await Promise.all(
           res.data.map(async (chat) => {
             const senderId = chat.members.find((id) => id !== user._id);
             const countRes = await userAxiosInstance.get(countUnreadMessages, {
               params: { senderId, chatId: chat._id },
             });
-            counts[chat._id] = countRes.data.unreadCount;
+            console.log(countRes.data,'count');
+            
+            counts[chat._id] = countRes.data;
           })
         );
         setUnreadCounts(counts);
@@ -60,6 +65,16 @@ export default function Message() {
       }
     });
 
+    socket.current.on("typing", (data) => {
+      console.log(`${data.userId} is typing`);
+      setTypingUsers(prev => [...new Set([...prev, data.userId])]);
+    });
+
+    socket.current.on("stop-typing", (data) => {
+      console.log(`${data.userId} stopped typing`);
+      setTypingUsers(prev => prev.filter(id => id !== data.userId));
+    });
+
     return () => {
       socket.current.disconnect();
     };
@@ -69,14 +84,26 @@ export default function Message() {
 
   
   useEffect(() => {
-    if (sendmessage !== null) {
-    
+    if (sendmessage !== null) {  
       console.log("user message to socket ,",sendmessage);
       
       socket.current.emit("send-message", sendmessage);
     }
   }, [sendmessage]);
 
+
+  const handleTyping = (chat_id , user_id) => {
+ 
+    if (chat_id) {
+      socket.current.emit("typing", { chatId: chat_id, userId: user_id });
+    }
+  };
+
+  const handleStopTyping = (chat_id , user_id) => {
+    if (chat_id) {
+      socket.current.emit("stop-typing", { chatId: chat_id, userId: user_id });
+    }
+  };
 
 
 
@@ -137,6 +164,7 @@ useEffect(() => {
 }, [socket]);
 
   const checkOnlineStatus = (chat) => {
+    
     const chatMember = chat.members.find((member) => member !== user._id);
     const online = onlineUsers.find((user) => user.userId === chatMember);
     return online ? true : false;
@@ -180,6 +208,7 @@ useEffect(() => {
                     user={user._id}
                     online={checkOnlineStatus(chat)}
                     unreadCount={unreadCounts[chat._id] || 0}
+                    typingUsers={typingUsers}
                   />
                 </div>
               ))
@@ -197,7 +226,11 @@ useEffect(() => {
               chat={currentChat}
               user={user._id}
               setSendMessage={setSendMessage}
-              receivedMessage={receivedMessage}        
+              receivedMessage={receivedMessage}  
+              onlineUsers={onlineUsers}      
+              handleTyping={handleTyping}
+              handleStopTyping={handleStopTyping}
+              typingUsers={typingUsers}
             />
           </div>
         </div>

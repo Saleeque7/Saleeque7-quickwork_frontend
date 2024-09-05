@@ -1,4 +1,4 @@
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { clientAxiosInstance } from "../../utils/api/privateAxios";
 import {
   userdataApi,
@@ -7,7 +7,7 @@ import {
   clientaddAudioFilemessageApi,
   clientaddImageFilemessageApi,
   clientaddVideoFilemessageApi,
-  clientaddVoiceFilemessageApi
+  clientaddVoiceFilemessageApi,
 } from "../../utils/api/api";
 import Avatar from "react-avatar";
 import { format } from "timeago.js";
@@ -19,14 +19,23 @@ import { AiOutlineAudio } from "react-icons/ai";
 import { MessageTimestamp } from "../uic/MessageTimeStamp";
 import { FaMicrophone } from "react-icons/fa";
 import { MdOutlineVideocam } from "react-icons/md";
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 import { config } from "../../config/config";
 
-export default function ClientChatBox({ chat,client,setSendMessage,receivedMessage,clientName }) {
-
+export default function ClientChatBox({
+  chat,
+  client,
+  setSendMessage,
+  receivedMessage,
+  clientName,
+  onlineUsers,
+  handleTyping,
+  handleStopTyping,
+  typingUsers
+}) {
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [newmessages, setnewMessages] = useState('');
+  const [newmessages, setnewMessages] = useState("");
   const [showFileOptions, setShowFileOptions] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [selectedAudio, setSelectedAudio] = useState(null);
@@ -48,7 +57,9 @@ export default function ClientChatBox({ chat,client,setSendMessage,receivedMessa
       try {
         if (chat && chat.members) {
           const userId = chat.members.find((id) => id !== client);
-          const res = await clientAxiosInstance.get(`${userdataApi}?id=${userId}`);
+          const res = await clientAxiosInstance.get(
+            `${userdataApi}?id=${userId}`
+          );
           setUserData(res.data);
         } else {
           console.warn("Chat or chat members are null/undefined");
@@ -59,8 +70,6 @@ export default function ClientChatBox({ chat,client,setSendMessage,receivedMessa
     };
     fetchusersData();
   }, [chat, client]);
-  
-
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -80,35 +89,38 @@ export default function ClientChatBox({ chat,client,setSendMessage,receivedMessa
     scroll.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-
   const handleChange = (newMessage) => {
-    setnewMessages(newMessage)
-  }
+    setnewMessages(newMessage);
+    handleTyping(chat._id ,client)
+  };
 
+  const handleSend = async (e) => {
+    e.preventDefault();
 
-  const handleSend = async(e)=> {
-    e.preventDefault()
-
-    if (!newmessages.trim() && !selectedImage && !selectedAudio && !selectedVideo &&
-    !recordedAudio) {
+    if (
+      !newmessages.trim() &&
+      !selectedImage &&
+      !selectedAudio &&
+      !selectedVideo &&
+      !recordedAudio
+    ) {
       return;
     }
-  
- 
+
     if (selectedImage) {
       await handleFileUpload(selectedImage, "image");
       setSelectedImage(null);
-      return
+      return;
     }
     if (selectedAudio) {
       await handleFileUpload(selectedAudio, "audio");
       setSelectedAudio(null);
-      return
+      return;
     }
     if (selectedVideo) {
       await handleFileUpload(selectedVideo, "video");
       setSelectedVideo(null);
-      return
+      return;
     }
 
     if (recordedAudio) {
@@ -117,87 +129,83 @@ export default function ClientChatBox({ chat,client,setSendMessage,receivedMessa
       return;
     }
 
-    if(newmessages.trim()){
+    if (newmessages.trim()) {
       const message = {
-        senderId : client,
-        type:"text",
+        senderId: client,
+        type: "text",
         message: newmessages,
         chatId: chat._id,
-        read:false
+        read: false,
+      };
+
+      const receiverId = chat.members.find((id) => id !== client);
+      setSendMessage({ ...message, receiverId });
+
+      try {
+        const res = await clientAxiosInstance.post(
+          addClientMessageapi,
+          message
+        );
+        setMessages([...messages, res.data]);
+        setnewMessages("");
+      } catch (error) {
+        console.error(error, "error in chatbox");
+      }
     }
-   
-  const receiverId = chat.members.find((id) => id !== client);
-  setSendMessage({...message, receiverId});
+  };
 
+  const handleFileUpload = async (file, type) => {
+    const formData = new FormData();
 
-  try {
-    const res = await clientAxiosInstance.post(addClientMessageapi,message)
-    setMessages([...messages,res.data])
-    setnewMessages('')
-  } catch (error) {
-    console.error(error,"error in chatbox");
-  }
-}
-}
+    formData.append("chatId", chat._id);
+    formData.append("type", type);
+    formData.append(type, file);
+    formData.append("senderId", client);
+    formData.append("read", false);
 
-
-const handleFileUpload = async (file, type) => {
-  
-  const formData = new FormData();
-
-  formData.append("chatId", chat._id);
-  formData.append("type", type);
-  formData.append(type, file);
-  formData.append("senderId", client);
-  formData.append("read", false);
-
-
-  for (let [key, value] of formData) {
-    console.log(key, value, "jhjh");
-  }
-
-  try {
-    let URI;
-
-    if (type === "image") {
-      URI = clientaddImageFilemessageApi
-    } else if (type === "audio") {
-      URI = clientaddAudioFilemessageApi
-    } else if (type === "video") {
-      URI = clientaddVideoFilemessageApi
-    }else if (type === "voice") {
-      URI = clientaddVoiceFilemessageApi;
+    for (let [key, value] of formData) {
+      console.log(key, value, "jhjh");
     }
-    
-    const res = await clientAxiosInstance.post(URI, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    
-    const receiverId = chat.members.find((id) => id !== client);
-    const newMessage = res.data;
-    setSendMessage({...newMessage, receiverId });
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
 
+    try {
+      let URI;
 
-  } catch (error) {
-    console.error(error, "error in chatbox");
-  }
-};
+      if (type === "image") {
+        URI = clientaddImageFilemessageApi;
+      } else if (type === "audio") {
+        URI = clientaddAudioFilemessageApi;
+      } else if (type === "video") {
+        URI = clientaddVideoFilemessageApi;
+      } else if (type === "voice") {
+        URI = clientaddVoiceFilemessageApi;
+      }
 
+      const res = await clientAxiosInstance.post(URI, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
-const handleImageChange = (e) => {
-  setSelectedImage(e.target.files[0]);
-};
+      const receiverId = chat.members.find((id) => id !== client);
+      const newMessage = res.data;
+      setSendMessage({ ...newMessage, receiverId });
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+    } catch (error) {
+      console.error(error, "error in chatbox");
+    }
+  };
 
-const handleAudioChange = (e) => {
-  setSelectedAudio(e.target.files[0]);
-};
+  const handleImageChange = (e) => {
+    setSelectedImage(e.target.files[0]);
+  };
 
-const handleVideoChange = (e) => {
-  setSelectedVideo(e.target.files[0]);
-};
+  const handleAudioChange = (e) => {
+    setSelectedAudio(e.target.files[0]);
+  };
+
+  const handleVideoChange = (e) => {
+    setSelectedVideo(e.target.files[0]);
+  };
 
   // Receive Message from parent component
   useEffect(() => {
@@ -245,7 +253,7 @@ const handleVideoChange = (e) => {
 
   const startVideoCall = async () => {
     setIsVideoCallActive(true);
-    const appID = config.VITE_ZEGO_APP_ID;
+    const appID = parseInt(config.VITE_ZEGO_APP_ID);
     const serverSecret = config.VITE_ZEGO_SERVER_SECRET;
 
     const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
@@ -262,19 +270,36 @@ const handleVideoChange = (e) => {
       container: videoCallContainer.current,
       sharedLinks: [
         {
-          name: 'Copy link',
-          url:`${config.VITE_APP_URL}/room/${chat._id}`
+          name: "Copy link",
+          url: `${config.VITE_APP_URL}/room/${chat._id}`,
         },
       ],
       scenario: {
         mode: ZegoUIKitPrebuilt.OneONoneCall,
       },
       onLeaveRoom: () => {
-       setIsVideoCallActive(false); 
-        videoCallContainer.current.innerHTML = ''; 
+        setIsVideoCallActive(false);
+        videoCallContainer.current.innerHTML = "";
       },
     });
   };
+
+  const getUserStatus = (userId) => {
+    if (typingUsers.includes(userId)) {
+      return "Typing...";
+    }
+    if (onlineUsers.find((user) => user.userId === userId)) {
+      return "Online";
+    }
+    return "";
+  };
+
+  const handleBlur = () => {
+    handleStopTyping(chat._id ,client); 
+  };
+
+  const chatMember = chat?.members?.find((member) => member !== client);
+  const status = chatMember ? getUserStatus(chatMember) : "";
 
 
   return (
@@ -282,64 +307,80 @@ const handleVideoChange = (e) => {
       <div className="bg-white rounded-lg grid grid-rows-[14vh_60vh_13vh]">
         {chat ? (
           <>
-          <div>
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Avatar
-                  name={userData?.name || "User"}
-                  src={userData?.profile?.location}
-                  size="50"
-                  round={true}
-                />
-                <div className="text-sm">
-                  <span>{userData?.name}</span>
+            <div>
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Avatar
+                    name={userData?.name || "User"}
+                    src={userData?.profile?.location}
+                    size="50"
+                    round={true}
+                  />
+                   <div>
+                    
+                    <span className="text-md">{userData?.name}</span>
+                  
+                    <div
+                      className="text-online text-xs  " 
+                      
+                    >
+                      {status}
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4">
                   <MdOutlineVideocam
                     className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
-                    onClick={startVideoCall} 
+                    onClick={startVideoCall}
                   />
                 </div>
-            </div>
+              </div>
               <hr className="w-[95%] border-t-[0.1px] border-gray-300 mt-5" />
             </div>
             <div className="flex flex-col gap-2 p-6 overflow-y-scroll">
               {messages.map((message) => (
                 <div
-                key={`${message._id}-${message.createdAt}`}
+                  key={`${message._id}-${message.createdAt}`}
                   ref={scroll}
                   className={`flex flex-col gap-2  px-5  py-1 rounded-xl max-w-lg w-fit ${
                     message.senderId === client
-                       ? "self-end  rounded-br-none bg-green-100"
-                       : " rounded-bl-none text-teal-600 bg-gray-100"
+                      ? "self-end  rounded-br-none bg-green-100"
+                      : " rounded-bl-none text-teal-600 bg-gray-100"
                   }`}
                 >
-                    {message.type === "text" ? (
-                  <span>{message?.message}</span>
-                ) : message.type === "image" ? (
-                  <img src={message?.file?.location} alt="sent-image" className="max-w-80 max-h-80 rounded mt-4" />
-                ) : message.type === "audio" ? (
-                  <audio controls src={message?.file?.location} >
-                    Your browser does not support the audio tag.
-                  </audio>
-                ) : message.type === "voice" ? (
-                  <audio controls src={message?.file?.location} >
-                    Your browser does not support the audio tag.
-                  </audio>
-                ) : message.type === "video" ? (
-                  <video controls src={message?.file?.location} className="max-w-80 max-h-80 mt-4 rounded">
-                    Your browser does not support the video tag.
-                  </video>
-                ) : null}
-                 <div
+                  {message.type === "text" ? (
+                    <span>{message?.message}</span>
+                  ) : message.type === "image" ? (
+                    <img
+                      src={message?.file?.location}
+                      alt="sent-image"
+                      className="max-w-80 max-h-80 rounded mt-4"
+                    />
+                  ) : message.type === "audio" ? (
+                    <audio controls src={message?.file?.location}>
+                      Your browser does not support the audio tag.
+                    </audio>
+                  ) : message.type === "voice" ? (
+                    <audio controls src={message?.file?.location}>
+                      Your browser does not support the audio tag.
+                    </audio>
+                  ) : message.type === "video" ? (
+                    <video
+                      controls
+                      src={message?.file?.location}
+                      className="max-w-80 max-h-80 mt-4 rounded"
+                    >
+                      Your browser does not support the video tag.
+                    </video>
+                  ) : null}
+                  <div
                     className={`${
                       message?.senderId === client
                         ? "text-right text-gay-100"
                         : "text-left text-gray-500"
                     }`}
                   >
-                 <MessageTimestamp createdAt={message.createdAt} />
+                    <MessageTimestamp createdAt={message.createdAt} />
                   </div>
                 </div>
               ))}
@@ -369,6 +410,7 @@ const handleVideoChange = (e) => {
               <InputEmoji
                 value={newmessages}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="flex-1"
               />
               {showFileOptions && (
@@ -409,8 +451,7 @@ const handleVideoChange = (e) => {
                   )}
                   {selectedAudio && (
                     <div className="relative p-2 border border-gray-300 rounded-md mt-2 max-w-[350px] max-h-[350px] overflow-hidden">
-                      <audio controls
-                       className="w-full">
+                      <audio controls className="w-full">
                         <source
                           src={URL.createObjectURL(selectedAudio)}
                           type={selectedAudio.type}
@@ -432,7 +473,7 @@ const handleVideoChange = (e) => {
                         className="w-full h-full object-cover rounded-lg"
                       />
                       <MdOutlineClose
-                        onClick={() => setSelectedVideo(null)} 
+                        onClick={() => setSelectedVideo(null)}
                         className="absolute top-4 right-4 bg-gray-500 text-white rounded-full w-6 h-6 flex items-center justify-center cursor-pointer"
                       />
                     </div>
@@ -440,22 +481,22 @@ const handleVideoChange = (e) => {
                 </div>
               )}
 
-<div className="absolute bottom-16 left-2 bg-white shadow-lg rounded-md p-2 flex flex-col space-y-2">
-              {recordedAudio && (
-                    <div className="relative p-2 border border-gray-300 rounded-md mt-2 max-w-[350px] max-h-[350px] overflow-hidden">
-                      <audio controls>
-                        <source
-                          src={URL.createObjectURL(recordedAudio)}
-                          type={recordedAudio.type}
-                        />
-                        Your browser does not support the audio element.
-                      </audio>
-                      <MdOutlineClose
-                        onClick={() => setRecordedAudio(null)}
-                        className="absolute top-0 right-0 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+              <div className="absolute bottom-16 left-2 bg-white shadow-lg rounded-md p-2 flex flex-col space-y-2">
+                {recordedAudio && (
+                  <div className="relative p-2 border border-gray-300 rounded-md mt-2 max-w-[350px] max-h-[350px] overflow-hidden">
+                    <audio controls>
+                      <source
+                        src={URL.createObjectURL(recordedAudio)}
+                        type={recordedAudio.type}
                       />
-                    </div>
-                  )}
+                      Your browser does not support the audio element.
+                    </audio>
+                    <MdOutlineClose
+                      onClick={() => setRecordedAudio(null)}
+                      className="absolute top-0 right-0 bg-gray-500 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer"
+                    />
+                  </div>
+                )}
               </div>
 
               <div
@@ -487,18 +528,15 @@ const handleVideoChange = (e) => {
               />
             </div>
           </>
-      ) : (
-        <span className="text-center text-gray-500 mt-5">
-          Tap on a chat to start conversation...
-        </span>
-      )}
+        ) : (
+          <span className="text-center text-gray-500 mt-5">
+            Tap on a chat to start conversation...
+          </span>
+        )}
       </div>
-      {isVideoCallActive &&
-      (<div
-        ref={videoCallContainer}
-       className="video-call-container"
-      ></div>)
-      }
+      {isVideoCallActive && (
+        <div ref={videoCallContainer} className="video-call-container"></div>
+      )}
     </>
   );
 }

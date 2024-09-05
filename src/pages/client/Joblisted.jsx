@@ -13,6 +13,7 @@ import { FaHourglassHalf, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import debounce from "lodash.debounce";
 import JobExpiryCountdown from "../../components/Client/JobExpiry";
 import { Pagination } from "../../components/user/Pagination";
+import JobPostConfirmation from "../../components/Client/JobPostConfirmation";
 
 export default function Joblisted() {
   const [activeminTab, setActiveminTab] = useState("All Job Posts");
@@ -26,7 +27,8 @@ export default function Joblisted() {
     useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [jobIdToDelete, setJobIdToDelete] = useState(null);
 
   const fetchJob = async (query, page=1 , limit=3) => {
     try {
@@ -139,7 +141,36 @@ export default function Joblisted() {
     navigate(`/client/viewContract/${id}`);
   };
 
-  const handleCloseJob = async (id) => {
+  const handleClosejobPost = async(id) => {
+    setJobIdToDelete(id)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseJob = async () => {
+    try {
+      const response = await clientAxiosInstance.put(
+        `${deleteJobApi}?jobId=${jobIdToDelete}`
+      );
+      console.log("Job post closed successfully", response.data);
+      setJob(prevJobs => {
+        const jobIndex = prevJobs.findIndex(job => job._id === jobIdToDelete);
+        const updatedJobs = [...prevJobs];
+        if (jobIndex !== -1) {
+          updatedJobs[jobIndex] = response.data;
+        } else {
+          updatedJobs.push(response.data);
+        } 
+        return updatedJobs;
+      });
+
+    } catch (error) {
+      console.error("Error in handleCloseJob:", error.message);
+    }finally {
+      setIsModalOpen(false);
+      setJobIdToDelete(null);
+    }
+  };
+  const handleAutoCloseJob = async (id) => {
     try {
       const response = await clientAxiosInstance.put(
         `${deleteJobApi}?jobId=${id}`
@@ -158,6 +189,9 @@ export default function Joblisted() {
 
     } catch (error) {
       console.error("Error in handleCloseJob:", error.message);
+    }finally {
+      setIsModalOpen(false);
+      setJobIdToDelete(null);
     }
   };
 
@@ -262,7 +296,7 @@ export default function Joblisted() {
                                 </span>
                                 <JobExpiryCountdown
                                   expiryDate={job.Expirydate}
-                                  onExpire={() => handleCloseJob(job._id)}
+                                  onExpire={() => handleAutoCloseJob(job._id)}
                                 />
                               </p>
                             )}
@@ -278,11 +312,16 @@ export default function Joblisted() {
                             ) : (
                               <button
                                 className="px-3 py-2 text-red-500 rounded-md hover:bg-red-600 hover:text-white focus:outline-none"
-                                onClick={() => handleCloseJob(job._id)}
+                                onClick={() => handleClosejobPost(job._id)}
                               >
                                 Close Job Post
                               </button>
                             )}
+                         <JobPostConfirmation
+                          isOpen={isModalOpen}
+                          onClose={() => setIsModalOpen(false)}
+                          onConfirm={handleCloseJob}
+                        />
                           </div>
                         </div>
                         <hr className="my-8 border-gray-300" />

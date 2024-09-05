@@ -13,23 +13,7 @@ export default function Bills() {
   const [currentPageTransaction, setCurrentTransaction] = useState(1);
   const [totalPagesTransaction, setTotalPagesTransaction] = useState(1);
    const [balance ,setbalance] = useState("")
-  const walletTransactions = [
-    // Example data for wallet transactions
-    {
-      id: 1,
-      type: "credit",
-      amount: 100,
-      date: "2024-08-09",
-      source: "Payment received",
-    },
-    {
-      id: 2,
-      type: "debit",
-      amount: 50,
-      date: "2024-08-07",
-      source: "Withdrawal",
-    },
-  ];
+
 
   const fetchTransactionInfo = useCallback(
     debounce(async (query, page = 1, limit = 5) => {
@@ -39,46 +23,51 @@ export default function Bills() {
         });
         console.log(res.data, "transaction");
         if (res.data) {
-          setTransactions(res.data.transaction);
-          setTotalPagesTransaction(res.data.Pages);
+          setTransactions(res.data.transaction || []);
+          setTotalPagesTransaction(res.data.Pages || 1);
         }
       } catch (error) {
         console.error(error, "error in fetching transaction info");
       }
     }, 500),
-    []
+    [clientAxiosInstance, setTransactions, setTotalPagesTransaction]
   );
-
+  
   const fetchWalletInfo = useCallback(
     debounce(async (query, page = 1, limit = 5) => {
       try {
         const res = await clientAxiosInstance.get(fetchWalletApi, {
           params: { searchQuery: query, page, limit },
         });
-        console.log(res.data, "indaaa");
-
+        console.log(res.data, "wallet");
         if (res.data) {
-          setbalance(res.data.balance)
-          setwalletInfo(res.data.transaction);
-          setTotalPagesTransaction(res.data.Pages);
+          setbalance(res.data.balance);
+          setwalletInfo(res.data.transaction || []);
+          setTotalPagesTransaction(res.data.Pages || 1);
         }
       } catch (error) {
         console.error(error, "error in fetching wallet info");
       }
     }, 500),
-    []
+    [clientAxiosInstance, setbalance, setwalletInfo, setTotalPagesTransaction]
   );
-
+  
   useEffect(() => {
     if (activeTabs === "Payment History") {
       fetchTransactionInfo(searchQueryTransaction, currentPageTransaction);
     }
-
+  
     if (activeTabs === "Wallet Transaction") {
       fetchWalletInfo(searchQueryTransaction, currentPageTransaction);
     }
+  
+    return () => {
+      // Cleanup debounce
+      fetchTransactionInfo.cancel();
+      fetchWalletInfo.cancel();
+    };
   }, [activeTabs, searchQueryTransaction, currentPageTransaction]);
-
+  
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPagesTransaction) {
       setCurrentTransaction(page);
@@ -121,7 +110,7 @@ export default function Bills() {
         <hr className="w-full border-t-1 border-gray-500 mb-12" />
 
         {activeTabs === "Wallet Transaction" && (
-          <div className="min-h-[70vh]">
+          <div className="px-10 min-h-[70vh]">
             <h2 className="text-2xl font-semibold mb-6">Wallet Transactions</h2>
 
             <div className="mb-4">
@@ -194,7 +183,7 @@ export default function Bills() {
         )}
 
         {activeTabs === "Payment History" && (
-          <div className="p-10 min-h-[100vh]">
+          <div className="px-10 min-h-[70vh]">
             <div className="flex items-center justify-between mb-16">
               <h2 className="text-2xl text-teal-700 font-semibold">
                 Payment History

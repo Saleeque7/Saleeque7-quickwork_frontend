@@ -17,6 +17,8 @@ export default function Message() {
   const [sendmessage, setSendMessage] = useState(null);
   const [receivedMessage, setReceivedMessage] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [typingUsers, setTypingUsers] = useState([]);
+
   const socket = useRef();
 
 
@@ -34,7 +36,7 @@ export default function Message() {
             const countRes = await clientAxiosInstance.get(clientcountUnreadMessages, {
               params: { senderId, chatId: chat._id },
             });
-            counts[chat._id] = countRes.data.unreadCount;
+            counts[chat._id] = countRes.data;
           })
         );
         setUnreadCounts(counts);
@@ -66,6 +68,16 @@ export default function Message() {
       }
     });
 
+    socket.current.on('typing', (data) => {
+      console.log(`${data.userId} is typing`);
+      setTypingUsers(prev => [...new Set([...prev, data.userId])]);
+    });
+
+    socket.current.on('stop-typing', (data) => {
+      console.log(`${data.userId} stopped typing`);
+      setTypingUsers(prev => prev.filter(id => id !== data.userId));
+    });
+
     // Clean up on component unmount
     return () => {
       console.log("Disconnecting socket...");
@@ -85,6 +97,23 @@ export default function Message() {
     const online = onlineUsers.find((client) => client.userId === chatMember);
     return online ? true : false
   }
+
+
+  const handleTyping = (chat_id , user_id) => {
+ 
+    if (chat_id) {
+      socket.current.emit("typing", { chatId: chat_id, userId: user_id });
+    }
+  };
+
+  const handleStopTyping = (chat_id , user_id) => {
+    if (chat_id) {
+      socket.current.emit("stop-typing", { chatId: chat_id, userId: user_id });
+    }
+  };
+
+
+
 
   useEffect(() => {
     const handleDisconnect = () => {
@@ -162,7 +191,8 @@ useEffect(() => {
                     data={chat} 
                     client={client._id}  
                     online={checkOnlineStatus(chat)}
-                     unreadCount={unreadCounts[chat._id] || 0}
+                    unreadCount={unreadCounts[chat._id] || 0}
+                   typingUsers={typingUsers}
                   />
                 </div>
               ))
@@ -181,6 +211,10 @@ useEffect(() => {
               setSendMessage={setSendMessage}
               receivedMessage={receivedMessage}
               clientName={client.name}
+              onlineUsers={onlineUsers} 
+              handleTyping={handleTyping}
+              handleStopTyping={handleStopTyping}
+              typingUsers={typingUsers}
             />
           </div>
         </div>

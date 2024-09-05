@@ -18,14 +18,20 @@ import { AiOutlineAudio } from "react-icons/ai";
 import { FaMicrophone } from "react-icons/fa";
 import { MessageTimestamp } from "../uic/MessageTimeStamp";
 import { MdOutlineVideocam } from "react-icons/md";
-import { ZegoUIKitPrebuilt } from '@zegocloud/zego-uikit-prebuilt';
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 export default function ChatBox({
   chat,
   user,
   setSendMessage,
   receivedMessage,
+  onlineUsers,
+  handleTyping,
+  handleStopTyping,
+  typingUsers
 }) {
+
+
   const [clientData, setClientData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newmessages, setnewMessages] = useState("");
@@ -43,8 +49,9 @@ export default function ChatBox({
   const audioRef = useRef();
   const videoRef = useRef();
 
-  const handleChange = (newMessage) => {
+  const handleChange = (newMessage) => {  
     setnewMessages(newMessage);
+    handleTyping(chat._id ,user)
   };
 
   useEffect(() => {
@@ -238,32 +245,59 @@ export default function ChatBox({
   };
   const handleVideoCall = () => {};
 
+
+
+  const getUserStatus = (userId) => {
+    if (typingUsers.includes(userId)) {
+      return "Typing...";
+    }
+    if (onlineUsers.find((user) => user.userId === userId)) {
+      return "Online";
+    }
+    return "";
+  };
+
+  const handleBlur = () => {
+    handleStopTyping(chat._id ,user); 
+  };
+
+  const chatMember = chat?.members?.find((member) => member !== user);
+  const status = chatMember ? getUserStatus(chatMember) : "";
+
   return (
     <>
       <div className="bg-white  rounded-lg grid grid-rows-[14vh_60vh_13vh]">
         {chat ? (
           <>
-          <div>
-            <div className="p-4 flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Avatar
-                  name={clientData?.name || "User"}
-                  src={clientData?.profileImage}
-                  size="50"
-                  round={true}
-                />
-                <div className="text-sm">
-                  <span>{clientData?.name}</span>
+            <div>
+              <div className="p-4 flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <Avatar
+                    name={clientData?.name || "User"}
+                    src={clientData?.profileImage}
+                    size="50"
+                    round={true}
+                  />
+                  <div>
+                    {/* Display client name */}
+                    <span className="text-md">{clientData?.name}</span>
+                    {/* Display online/offline status below the name */}
+                    <div
+                      className="text-online text-xs  " 
+                      
+                    >
+                      {status}
+                    </div>
+                  </div>
+                </div>
+                {/* Video Call Icon */}
+                <div className="flex items-center space-x-4">
+                  <MdOutlineVideocam
+                    className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
+                    onClick={handleVideoCall}
+                  />
                 </div>
               </div>
-              {/* Video Call Icon */}
-              <div className="flex items-center space-x-4">
-                <MdOutlineVideocam
-                  className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
-                  onClick={handleVideoCall}
-                />
-              </div>
-            </div>
               <hr className="w-[95%] border-t-[0.1px] border-gray-300 mt-5" />
             </div>
             <div className="flex flex-col gap-2 p-6 overflow-y-scroll ">
@@ -341,6 +375,7 @@ export default function ChatBox({
               <InputEmoji
                 value={newmessages}
                 onChange={handleChange}
+                onBlur={handleBlur}
                 className="flex-1"
               />
 
