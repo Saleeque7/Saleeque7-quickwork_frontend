@@ -28,10 +28,11 @@ export default function ChatBox({
   onlineUsers,
   handleTyping,
   handleStopTyping,
-  typingUsers
+  typingUsers,
+  incomingCall,
+  handleAcceptCall,
+  handleRejectCall
 }) {
-
-
   const [clientData, setClientData] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newmessages, setnewMessages] = useState("");
@@ -49,9 +50,9 @@ export default function ChatBox({
   const audioRef = useRef();
   const videoRef = useRef();
 
-  const handleChange = (newMessage) => {  
+  const handleChange = (newMessage) => {
     setnewMessages(newMessage);
-    handleTyping(chat._id ,user)
+    handleTyping(chat._id, user);
   };
 
   useEffect(() => {
@@ -245,8 +246,6 @@ export default function ChatBox({
   };
   const handleVideoCall = () => {};
 
-
-
   const getUserStatus = (userId) => {
     if (typingUsers.includes(userId)) {
       return "Typing...";
@@ -258,7 +257,7 @@ export default function ChatBox({
   };
 
   const handleBlur = () => {
-    handleStopTyping(chat._id ,user); 
+    handleStopTyping(chat._id, user);
   };
 
   const chatMember = chat?.members?.find((member) => member !== user);
@@ -279,27 +278,38 @@ export default function ChatBox({
                     round={true}
                   />
                   <div>
-                    {/* Display client name */}
+         
                     <span className="text-md">{clientData?.name}</span>
-                    {/* Display online/offline status below the name */}
-                    <div
-                      className="text-online text-xs  " 
-                      
-                    >
-                      {status}
-                    </div>
+           
+                    <div className="text-online text-xs  ">{status}</div>
                   </div>
                 </div>
-                {/* Video Call Icon */}
-                <div className="flex items-center space-x-4">
-                  <MdOutlineVideocam
-                    className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
-                    onClick={handleVideoCall}
-                  />
+                <div>
+                  {incomingCall && (
+                    <>
+                    <div className="bg-blue-500 text-white p-2 rounded-lg mb-2">
+                      {incomingCall.name} is calling...
+                      <button
+                        className="ml-4 bg-green-500 p-1 rounded"
+                        onClick={() => handleAcceptCall(incomingCall.roomId)}
+                      >
+                        Accept
+                      </button>
+                      <button
+                        className="ml-2 bg-red-500 p-1 rounded"
+                        onClick={handleRejectCall}
+                      >
+                        Reject
+                      </button>
+                    </div>
+                  </>
+                  )}
+
                 </div>
               </div>
               <hr className="w-[95%] border-t-[0.1px] border-gray-300 mt-5" />
             </div>
+
             <div className="flex flex-col gap-2 p-6 overflow-y-scroll ">
               {messages.map((message, index) => (
                 <div

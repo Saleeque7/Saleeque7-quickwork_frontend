@@ -7,6 +7,7 @@ import Conversation from "../../components/user/Conversation";
 import ChatBox from "../../components/user/ChatBox";
 import { config } from "../../config/config";
 import { io } from "socket.io-client";
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 
 export default function Message() {
@@ -18,8 +19,11 @@ export default function Message() {
   const [receivedMessage, setReceivedMessage] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
   const [typingUsers, setTypingUsers] = useState([]);
+  const [incomingCall, setIncomingCall] = useState(null);  
 
   const socket = useRef();
+  const videoCallContainer = useRef(null);
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
 
   useEffect(() => {
     const fetchUserChats = async () => {
@@ -75,11 +79,22 @@ export default function Message() {
       setTypingUsers(prev => prev.filter(id => id !== data.userId));
     });
 
+    socket.current.on("incoming-call", (data) => {
+      console.log("Incoming call data: ", data); 
+      const { senderId, roomId, name } = data;
+      if (!roomId) {
+        console.error("No roomId received in incoming call");
+        return;
+      }
+      setIncomingCall({ senderId, roomId, name });
+    });
+    
+    
+
     return () => {
       socket.current.disconnect();
     };
   }, [user, currentChat]);
-
 
 
   
@@ -171,6 +186,8 @@ useEffect(() => {
   };
 
 
+  
+
 
   useEffect(() => {
     const handleDisconnect = () => {
@@ -182,8 +199,69 @@ useEffect(() => {
       socket.current.off('disconnect', handleDisconnect);
     };
   }, []);
+
+
+
+  
+  const handleJoinCall = async (roomId) => {
+    setIsVideoCallActive(true)
+    const appID = parseInt(config.VITE_ZEGO_APP_ID);
+    const serverSecret = config.VITE_ZEGO_SERVER_SECRET;
+  
+    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+      appID,
+      serverSecret,
+      roomId,
+      user._id,
+      user.name
+    );
+  
+    const zegoUIKitPrebuilt = ZegoUIKitPrebuilt.create(kitToken);
+  
+    zegoUIKitPrebuilt.joinRoom({
+      container: videoCallContainer.current,
+      sharedLinks: [
+        {
+          name: "Copy link",
+          url: `${config.VITE_APP_URL}/room/${roomId}`,
+        },
+      ],
+      scenario: {
+        mode: ZegoUIKitPrebuilt.OneONoneCall,
+      },
+      onLeaveRoom: () => {
+        setIsVideoCallActive(false);
+        setIncomingCall(null);
+        videoCallContainer.current.innerHTML = "";
+      },
+    });
+  };
   
 
+
+  const handleAcceptCall = (roomId) => {
+    socket.current.emit("call-accepted", { senderId: incomingCall.senderId });
+    handleJoinCall(roomId);
+  };
+  
+  const handleRejectCall = () => {
+    socket.current.emit("call-rejected", { senderId: incomingCall.senderId });
+    setIncomingCall(null);
+  };
+  
+
+  const endVideoCall = () => {
+    if (videoStream) {
+      videoStream.getTracks().forEach((track) => track.stop());
+    }
+    
+    socket.current.emit("end-call", { roomId: currentRoomId });
+  
+    // Reset any relevant state
+    setVideoStream(null);
+    setCurrentRoomId(null);
+  };
+  
 
   return (
     <div className="py-10 px-2 bg-gray-100">
@@ -231,9 +309,16 @@ useEffect(() => {
               handleTyping={handleTyping}
               handleStopTyping={handleStopTyping}
               typingUsers={typingUsers}
+              incomingCall={incomingCall}
+              handleAcceptCall={handleAcceptCall}
+              handleRejectCall={handleRejectCall}
+              videoCallContainer={videoCallContainer}
             />
           </div>
         </div>
+        {isVideoCallActive && (
+      <div ref={videoCallContainer} className="video-call-container"></div>
+    )}
       </div>
     </div>
   );

@@ -19,19 +19,18 @@ import { AiOutlineAudio } from "react-icons/ai";
 import { MessageTimestamp } from "../uic/MessageTimeStamp";
 import { FaMicrophone } from "react-icons/fa";
 import { MdOutlineVideocam } from "react-icons/md";
-import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
-import { config } from "../../config/config";
+
 
 export default function ClientChatBox({
   chat,
   client,
   setSendMessage,
   receivedMessage,
-  clientName,
   onlineUsers,
   handleTyping,
   handleStopTyping,
-  typingUsers
+  typingUsers,
+  startVideoCall
 }) {
   const [userData, setUserData] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -49,8 +48,7 @@ export default function ClientChatBox({
   const imageRef = useRef();
   const audioRef = useRef();
   const videoRef = useRef();
-  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
-  const videoCallContainer = useRef();
+
 
   useEffect(() => {
     const fetchusersData = async () => {
@@ -251,38 +249,7 @@ export default function ClientChatBox({
     }
   };
 
-  const startVideoCall = async () => {
-    setIsVideoCallActive(true);
-    const appID = parseInt(config.VITE_ZEGO_APP_ID);
-    const serverSecret = config.VITE_ZEGO_SERVER_SECRET;
 
-    const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
-      appID,
-      serverSecret,
-      chat._id,
-      client,
-      clientName
-    );
-
-    const zegoUIKitPrebuilt = ZegoUIKitPrebuilt.create(kitToken);
-
-    zegoUIKitPrebuilt.joinRoom({
-      container: videoCallContainer.current,
-      sharedLinks: [
-        {
-          name: "Copy link",
-          url: `${config.VITE_APP_URL}/room/${chat._id}`,
-        },
-      ],
-      scenario: {
-        mode: ZegoUIKitPrebuilt.OneONoneCall,
-      },
-      onLeaveRoom: () => {
-        setIsVideoCallActive(false);
-        videoCallContainer.current.innerHTML = "";
-      },
-    });
-  };
 
   const getUserStatus = (userId) => {
     if (typingUsers.includes(userId)) {
@@ -331,7 +298,7 @@ export default function ClientChatBox({
                 <div className="flex items-center space-x-4">
                   <MdOutlineVideocam
                     className="text-gray-500 text-4xl cursor-pointer hover:text-teal-500"
-                    onClick={startVideoCall}
+                    onClick={startVideoCall} 
                   />
                 </div>
               </div>
@@ -534,9 +501,7 @@ export default function ClientChatBox({
           </span>
         )}
       </div>
-      {isVideoCallActive && (
-        <div ref={videoCallContainer} className="video-call-container"></div>
-      )}
+    
     </>
   );
 }

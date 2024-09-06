@@ -7,6 +7,7 @@ import ClientConversations from "../../components/Client/ClientConversations";
 import ClientChatBox from "../../components/Client/ClientChatBox";
 import { config } from "../../config/config";
 import { io } from "socket.io-client";
+import { ZegoUIKitPrebuilt } from "@zegocloud/zego-uikit-prebuilt";
 
 export default function Message() {
   const client = useSelector((state) => state.persisted.client.client);
@@ -18,8 +19,9 @@ export default function Message() {
   const [receivedMessage, setReceivedMessage] = useState(null);
   const [unreadCounts, setUnreadCounts] = useState({});
   const [typingUsers, setTypingUsers] = useState([]);
-
+  const [isVideoCallActive, setIsVideoCallActive] = useState(false);
   const socket = useRef();
+  const videoCallContainer = useRef();
 
 
 
@@ -113,8 +115,6 @@ export default function Message() {
   };
 
 
-
-
   useEffect(() => {
     const handleDisconnect = () => {
       console.log("Socket disconnected");
@@ -169,6 +169,57 @@ useEffect(() => {
 }, [socket]);
 
 
+const startVideoCall = async () => {
+
+  const chatMember = currentChat.members.find((member) => member !== client._id);
+
+  
+  socket.current.emit("call-user", {
+    senderId: client._id,
+    receiverId: chatMember,
+    name:client.name,
+    roomId: currentChat._id,
+  });
+
+
+  setIsVideoCallActive(true);
+  const appID = parseInt(config.VITE_ZEGO_APP_ID);
+  const serverSecret = config.VITE_ZEGO_SERVER_SECRET;
+
+  const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(
+    appID,
+    serverSecret,
+    currentChat._id,
+    client._id,
+    client.name
+  );
+
+  const zegoUIKitPrebuilt = ZegoUIKitPrebuilt.create(kitToken);
+
+  
+  // Emit the call invitation to the other user
+
+
+  // Join the room using ZegoUIKitPrebuilt
+  zegoUIKitPrebuilt.joinRoom({
+    container: videoCallContainer.current,
+    sharedLinks: [
+      {
+        name: "Copy link",
+        url: `${config.VITE_APP_URL}/room/${currentChat._id}`,
+      },
+    ],
+    scenario: {
+      mode: ZegoUIKitPrebuilt.OneONoneCall,
+    },
+    onLeaveRoom: () => {
+      setIsVideoCallActive(false);
+      videoCallContainer.current.innerHTML = "";
+    },
+  });
+};
+
+
   return (
     <div className="py-10 px-2 bg-gray-100">
       <div className="relative grid grid-cols-[22%,auto] gap-4">
@@ -210,14 +261,17 @@ useEffect(() => {
               client={client._id}
               setSendMessage={setSendMessage}
               receivedMessage={receivedMessage}
-              clientName={client.name}
               onlineUsers={onlineUsers} 
               handleTyping={handleTyping}
               handleStopTyping={handleStopTyping}
               typingUsers={typingUsers}
+              startVideoCall={startVideoCall}
             />
           </div>
         </div>
+      {isVideoCallActive && (
+      <div ref={videoCallContainer} className="video-call-container"></div>
+    )}
       </div>
     </div>
   );
