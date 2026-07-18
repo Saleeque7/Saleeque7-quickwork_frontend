@@ -1,23 +1,12 @@
 import { useState } from "react";
-import {
-  Box,
-  Container,
-  Flex,
-  Radio,
-  Stack,
-  Heading,
-  Text,
-  Button,
-} from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 import Logo from "../../components/uic/Logo";
 import { MdBusiness, MdPerson } from "react-icons/md";
 import { useNavigate } from "react-router-dom";
 
-
 function PreAuth() {
   const [selectedBox, setSelectedBox] = useState();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const handleBoxClick = (boxName) => {
     setSelectedBox(boxName);
   };
@@ -25,148 +14,109 @@ function PreAuth() {
   const handlepreAUth = () => {
     const job_role = selectedBox === 'boxA' ? 'client' : 'freelancer';
     if(job_role){
-      navigate('/register', { state: { userType: job_role } })
+      navigate('/register', { state: { userType: job_role } });
     }
     return job_role;
   };
 
   return (
-    <Box
-      minH="100vh"
-      bgGradient={[
-        "linear(to-tr, teal.300, yellow.400)",
-        "linear(to-t, blue.200, teal.500)",
-        "linear(to-b, orange.100, teal.300)",
-      ]}
-    >
-      <Flex position="sticky" top="0" mb={"-12"} zIndex="sticky">
-        <Link to={"/"}>
+    <div className="min-h-screen bg-zinc-50 p-6 flex flex-col justify-between">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between py-2 border-b border-gray-150">
+        <Link to="/">
           <Logo />
         </Link>
-      </Flex>
-      <Flex direction="column" alignItems="center">
-        <Container
-          maxW="xl"
-          pt={"-20"}
-          py={{ base: "8", md: "24" }}
-          px={{ base: "0", sm: "8" }}
-        >
-          <Stack spacing="6">
-            <Stack spacing="4" textAlign="center">
-              <Heading size={{ base: "xs", md: "xl" }} color={"teal.600"}>
-                Join as a client or freelancer
-              </Heading>
-            </Stack>
-          </Stack>
-          <Box
-            py={{ base: "0", sm: "8" }}
-            px={{ base: "4", sm: "10" }}
-            bg="red.50"
-            mt={"10"}
-            minH={"md"}
-            boxShadow="xl"
-            borderRadius="3xl"
-            border="1px solid"
-            borderColor="gray.200"
-            alignContent={"center"}
-          >
-            <Stack spacing="6">
-              <Stack direction="row" spacing="5">
-                <Box
-                  bg="transparent"
-                  w="48%"
-                  p={5}
-                  alignItems="center"
-                  position="relative"
-                  borderWidth={selectedBox === "boxA" ? "2px" : "1px"}
-                  borderColor={
-                    selectedBox === "boxA" ? "green.600" : "gray.200"
-                  }
-                  onClick={() => handleBoxClick("boxA")}
-                  cursor="pointer"
-                >
-                  <Flex>
-                    <MdBusiness size={24} color="teal" />
-                    <Text ml={1} color="teal.800">
-                      I’m a client,
-                      <br />
-                      hiring for a project
-                    </Text>
-                  </Flex>
-                  {selectedBox === "boxA" && (
-                    <Radio
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      onChange={() => setSelectedBox("boxA")}
-                      isChecked
-                    />
-                  )}
-                </Box>
-                <Box
-                  bg="transparent"
-                  w="48%"
-                  p={5}
-                  alignItems="center"
-                  position="relative"
-                  borderWidth={selectedBox === "boxB" ? "2px" : "1px"}
-                  borderColor={
-                    selectedBox === "boxB" ? "green.600" : "gray.200"
-                  }
-                  onClick={() => handleBoxClick("boxB")}
-                  cursor="pointer"
-                >
-                  <Flex>
-                    <MdPerson size={24} color="teal" />
-                    <Text ml={1} color="teal.800">
-                      I’m a Freelancer,
-                      <br />
-                      looking for work
-                    </Text>
-                  </Flex>
-                  {selectedBox === "boxB" && (
-                    <Radio
-                      position="absolute"
-                      top={2}
-                      right={2}
-                      onChange={() => setSelectedBox("boxB")}
-                      isChecked
-                    />
-                  )}
-                </Box>
-              </Stack>
-              <Button
-                bg={"blue.500"}
-                color={"white"}
-                _hover={{ bg: "blue.800" }}
-                onClick={selectedBox ? handlepreAUth : undefined}
-                disabled={!selectedBox} 
-                opacity={!selectedBox ? 0.5 : 1}
+      </div>
+
+      <div className="max-w-md mx-auto w-full py-12 px-4 sm:px-6">
+        <div className="flex flex-col gap-8 bg-white border border-gray-200/80 shadow-xl rounded-[32px] p-8 sm:p-10">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+              Join as a client or freelancer
+            </h1>
+          </div>
+          
+          <div className="flex flex-col gap-6">
+            <div className="flex justify-between gap-4">
+              <div
+                onClick={() => handleBoxClick("boxA")}
+                className={`w-[48%] p-5 flex flex-col items-start relative border rounded-2xl cursor-pointer transition-all ${
+                  selectedBox === "boxA"
+                    ? "border-green-600 border-2 bg-green-50/20"
+                    : "border-gray-250 hover:border-gray-400 bg-white"
+                }`}
               >
-                {selectedBox === "boxB"
-                  ? "Apply as a freelancer"
-                  : selectedBox === "boxA"
-                  ? "Join as a client"
-                  : "Register"}
-              </Button>
-            </Stack>
-            <Stack mt={"5"} alignItems={"center"}>
-              <Text color="gray">
-                Already have an account?{" "}
-                <Link
-                  to="/login"
-                  style={{ textDecoration: "none", color: "teal.500" }}
-                >
-                  <Text as="span" color="teal.500">
-                    Log In
-                  </Text>
-                </Link>
-              </Text>
-            </Stack>
-          </Box>
-        </Container>
-      </Flex>
-    </Box>
+                <div className="flex flex-col gap-2">
+                  <MdBusiness className="text-3xl text-green-600" />
+                  <span className="text-sm font-bold text-gray-800 text-left">
+                    I’m a client, hiring for a project
+                  </span>
+                </div>
+                {selectedBox === "boxA" && (
+                  <input
+                    type="radio"
+                    checked
+                    readOnly
+                    className="absolute top-3 right-3 accent-green-600 h-4 w-4 cursor-pointer"
+                  />
+                )}
+              </div>
+
+              <div
+                onClick={() => handleBoxClick("boxB")}
+                className={`w-[48%] p-5 flex flex-col items-start relative border rounded-2xl cursor-pointer transition-all ${
+                  selectedBox === "boxB"
+                    ? "border-green-600 border-2 bg-green-50/20"
+                    : "border-gray-250 hover:border-gray-400 bg-white"
+                }`}
+              >
+                <div className="flex flex-col gap-2">
+                  <MdPerson className="text-3xl text-green-600" />
+                  <span className="text-sm font-bold text-gray-800 text-left">
+                    I’m a freelancer, looking for work
+                  </span>
+                </div>
+                {selectedBox === "boxB" && (
+                  <input
+                    type="radio"
+                    checked
+                    readOnly
+                    className="absolute top-3 right-3 accent-green-600 h-4 w-4 cursor-pointer"
+                  />
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={selectedBox ? handlepreAUth : undefined}
+              disabled={!selectedBox}
+              className={`w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-full transition-all shadow-sm hover:shadow cursor-pointer text-sm ${
+                !selectedBox ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+            >
+              {selectedBox === "boxB"
+                ? "Apply as a freelancer"
+                : selectedBox === "boxA"
+                ? "Join as a client"
+                : "Register"}
+            </button>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-gray-500 font-medium">
+              Already have an account?{" "}
+              <Link to="/login" className="text-green-600 hover:text-green-700 font-bold hover:underline transition-colors">
+                Log in
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center py-4 border-t border-gray-200/50 mt-10">
+        <p className="text-xs text-gray-400">© 2026 QUICKWORK Inc. All rights reserved.</p>
+      </div>
+    </div>
   );
 }
 

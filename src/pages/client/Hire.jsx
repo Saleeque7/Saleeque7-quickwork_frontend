@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Divider } from "@chakra-ui/react";
+
 import { MdCurrencyRupee } from "react-icons/md";
 import { SiRazorpay, SiStripe } from "react-icons/si";
 import Logo from "../../assets/logo.png";
@@ -409,7 +409,7 @@ export default function Hire() {
                     </p>
                   </div>
                 </div>
-                <Divider className="my-4" />
+                <hr className="my-4 border-gray-200" />
 
                 <div className="py-4">
                   <div className="flex flex-col">

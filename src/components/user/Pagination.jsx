@@ -1,48 +1,39 @@
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import { Text, Flex, IconButton, Box } from "@chakra-ui/react";
 
 export const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1);
 
   return (
-    <Flex justifyContent="center" alignItems="center" mt={4} p={4} bg="white"  borderRadius="md">
-      {/* <IconButton
-        icon={<FaChevronLeft />}
-        isDisabled={currentPage === 1}
+    <div className="flex justify-center items-center mt-4 p-4 bg-white rounded-md">
+      {/* <button
+        disabled={currentPage === 1}
         onClick={() => onPageChange(currentPage - 1)}
+        className="mr-2 p-2 border border-teal-500 rounded disabled:opacity-50 text-teal-500 hover:bg-teal-50 transition-colors"
         aria-label="Previous Page"
-        variant="outline"
-        colorScheme="teal"
-        mr={2}
-      /> */}
+      >
+        <FaChevronLeft />
+      </button> */}
       {pages.map(page => (
-        <Box
+        <div
           key={page}
-          mx={1}
-          px={3}
-          py={1}
-          borderRadius="md"
-          cursor="pointer"
-          bg={currentPage === page ? "teal.500" : "gray.200"}
-          color={currentPage === page ? "white" : "black"}
-          _hover={{ bg: currentPage === page ? "teal.600" : "gray.300" }}
           onClick={() => onPageChange(page)}
-          transition="background-color 0.3s"
+          className={`mx-1 px-3 py-1 rounded-md cursor-pointer transition-colors duration-300 font-bold text-lg text-center ${
+            currentPage === page
+              ? "bg-teal-500 text-white hover:bg-teal-600"
+              : "bg-gray-200 text-black hover:bg-gray-300"
+          }`}
         >
-          <Text fontSize="lg" fontWeight="bold" textAlign="center">
-            {page}
-          </Text>
-        </Box>
+          {page}
+        </div>
       ))}
-      {/* <IconButton
-        icon={<FaChevronRight />}
-        isDisabled={currentPage === totalPages}
+      {/* <button
+        disabled={currentPage === totalPages}
         onClick={() => onPageChange(currentPage + 1)}
+        className="ml-2 p-2 border border-teal-500 rounded disabled:opacity-50 text-teal-500 hover:bg-teal-50 transition-colors"
         aria-label="Next Page"
-        variant="outline"
-        colorScheme="teal"
-        ml={2}
-      /> */}
-    </Flex>
+      >
+        <FaChevronRight />
+      </button> */}
+    </div>
   );
 };

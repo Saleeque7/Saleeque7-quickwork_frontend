@@ -1,17 +1,7 @@
-import {
-  Box,
-  Flex,
-  Image,
-  Text,
-  Heading,
-  Icon,
-  Button,
-} from "@chakra-ui/react";
 import { MdArrowForward } from "react-icons/md";
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import welcome from "../../assets/start.png";
-import { ArrowForwardIcon } from "@chakra-ui/icons";
+
 export default function ProfileStart({ onProfileStart, user }) {
   const [bgPosition, setBgPosition] = useState("20% 20%");
 
@@ -27,74 +17,41 @@ export default function ProfileStart({ onProfileStart, user }) {
   };
 
   return (
-    <Box
-      p={{ base: 0, md: 16 }}
+    <div
+      className="p-0 md:p-16 transition-[background-position] duration-100 ease-out bg-gradient-to-b from-white via-green-50 to-white"
       onMouseMove={handleMouseMove}
-      bgGradient="linear(to-b, white, green.50, white)"
-      backgroundPosition={bgPosition}
-      backgroundSize="200% 200%"
-      transition="background-position 0.1s ease"
+      style={{
+        backgroundPosition: bgPosition,
+        backgroundSize: "200% 200%",
+      }}
     >
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        flexDirection={{ base: "column", md: "row" }}
-      >
-        <Box
-          w={{ base: "100%", md: "40%" }}
-          mb={{ base: 8, md: 0 }}
-          alignItems="center"
-          borderRadius="md"
-          textAlign="start"
-        >
-          <Heading
-          mt={-24}
-            as="h1"
-            size="xl"
-            mb={4}
-            fontWeight={"bold"}
-            textColor={"teal.600"}
-          >
+      <div className="flex flex-col md:flex-row justify-between items-center">
+        <div className="w-full md:w-[40%] mb-8 md:mb-0 flex flex-col items-start text-left">
+          <h1 className="mt-0 md:-mt-24 text-3xl md:text-4xl font-bold mb-4 text-teal-600">
             Welcome to QuickWork <br />
             {user ? user.name : ""}
-          </Heading>
-          <Text as="h5" fontSize="md" mb={8} fontWeight="bold">
+          </h1>
+          <h5 className="text-md mb-8 font-bold text-gray-700">
             We need to get a sense of your profile, experience and skills. It’s
             quickest to import your information — you can edit it before your
             profile goes live.
-          </Text>
-          <Button
-            colorScheme="teal"
-            mt={4}
-            rightIcon={<Icon as={MdArrowForward} />}
-            onClick={onProfileStart }
+          </h5>
+          <button
+            type="button"
+            onClick={onProfileStart}
+            className="flex items-center gap-2 px-5 py-2.5 bg-teal-600 text-white font-semibold rounded hover:bg-teal-700 transition-colors cursor-pointer"
           >
-              Let's Get Started
-          </Button>
-        </Box>
+            <span>Let's Get Started</span>
+            <MdArrowForward className="text-lg" />
+          </button>
+        </div>
 
-        <Image
+        <img
           src={welcome}
           alt="Landing Page Image"
-          px={10}
-          py={15}
-          mr={55}
-          w={{ base: "100%", md: "50%" }}
-          mb={{ base: 4, md: 0 }}
-          alignContent={"center"}
-          maxH={"700px"}
+          className="w-full md:w-1/2 mb-4 md:mb-0 px-10 py-[15px] mr-0 md:mr-[55px] max-h-[700px] object-contain"
         />
-      </Flex>
-    </Box>
+      </div>
+    </div>
   );
 }
-
-{
-  /* <Container
-        maxW="80%"
-        py={{ base: "8", md: "20" }}
-        px={{ base: "0", sm: "8" }}
-        mt={-4}
-      </Container> */
-}
-// >

@@ -1,39 +1,22 @@
-import {
-  Box,
-  Flex,
-  Container,
-  Stack,
-  Heading,
-  Text,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  Image,
-  FormErrorMessage,
-  HStack,
-  PinInput,
-  PinInputField,
-} from "@chakra-ui/react";
 import Logo from "../../components/uic/Logo";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import emailLogo from "../../assets/emalVerify.png";
 import { toast } from "react-toastify";
 import { useEffect } from "react";
-import {  UserAxios } from "../../utils/api/baseUrl";
+import { UserAxios } from "../../utils/api/baseUrl";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function RegisterVerify() {
   const location = useLocation();
-  const {userInfo , responseOtp} = location.state || {}
+  const { userInfo, responseOtp } = location.state || {};
   const [otpError, setOtpError] = useState("");
   const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(30);
   const [resotp, setResotp] = useState(responseOtp);
   const [otpExpired, setOtpExpired] = useState(false);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     setResotp(responseOtp);
   }, [responseOtp]);
@@ -63,7 +46,7 @@ export default function RegisterVerify() {
 
   const handleResend = async () => {
     try {
-      const res = await UserAxios.post("/resend-otp", { email:userInfo.email });
+      const res = await UserAxios.post("/resend-otp", { email: userInfo.email });
       if (res.data.success) {
         setResotp(res.data.resendOtp);
         setOtp("");
@@ -97,11 +80,10 @@ export default function RegisterVerify() {
         setOtp("");
         setTimer("");
         setOtpExpired(false);
-        navigate('/login',{replace:true})
-      }else {
+        navigate('/login', { replace: true });
+      } else {
         setOtp("");
         setOtpError(res.data.message || 'Failed to verify OTP');
-
       }
     } catch (error) {
       if (error.response) {
@@ -129,104 +111,85 @@ export default function RegisterVerify() {
   };
 
   return (
-    <Box
-      minH="100vh"
-      bgGradient={[
-        "linear(to-tr, teal.300, yellow.400)",
-        "linear(to-t, blue.200, teal.500)",
-        "linear(to-b, orange.100, teal.300)",
-      ]}
-    >
-      <Flex position="sticky" top="0" zIndex="sticky">
-        <Link to={"/"}>
+    <div className="min-h-screen bg-zinc-50 p-6 flex flex-col justify-between">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between py-2 border-b border-gray-150">
+        <Link to="/">
           <Logo />
         </Link>
-      </Flex>
-      <Container
-        maxW="lg"
-        py={{ base: "8", md: "20" }}
-        px={{ base: "0", sm: "8" }}
-      >
-        <Stack spacing="7">
-          <Stack spacing="5" mt={"-16"}>
-            <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-              <Heading size={{ base: "xs", md: "xl" }} color={"teal.600"}>
-                Verify your Mail
-              </Heading>
-              <Text color="grey">
-                have an account?{" "}
-                <Link
-                  to={"/login"}
-                  style={{ textDecoration: "none", color: "teal" }}
-                >
-                  Sign In
-                </Link>
-              </Text>
-            </Stack>
-          </Stack>
-          <Box
-            py={{ base: "0", sm: "8" }}
-            px={{ base: "4", sm: "10" }}
-            bg="white"
-            boxShadow="md"
-            borderRadius="xl"
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Stack alignItems="center" mb={8}>
-              <Image src={emailLogo} height={150} width={200} />
+      </div>
 
-              {!otpExpired ? (
-                <>
-                  <Text mt={2} color="gray">
-                    Enter the <strong>OTP</strong> sent to your email
-                    <br />
-                  </Text>
-                  <Text mt={2} color={timer < 10 ? "red.500" : "gray"}>
-                    <strong>0:{timer.toString().padStart(2, "0")}</strong>
-                  </Text>
-                </>
-              ) : (
-                <Text mt={2} color="gray">
-                  OTP expired, please resend OTP
-                </Text>
+      <div className="max-w-md mx-auto w-full py-12 px-4 sm:px-6">
+        <div className="flex flex-col gap-8 bg-white border border-gray-200/80 shadow-xl rounded-[32px] p-8 sm:p-10">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">
+              Verify your Mail
+            </h1>
+            <p className="text-sm text-gray-500 font-medium">
+              Already verified?{" "}
+              <Link to="/login" className="text-green-600 hover:text-green-700 font-bold hover:underline transition-colors">
+                Sign In
+              </Link>
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center text-center">
+            <img src={emailLogo} className="h-[120px] w-[160px] object-contain mb-4" alt="Verify email" />
+            {!otpExpired ? (
+              <>
+                <p className="text-sm text-gray-500">
+                  Enter the <strong>OTP</strong> sent to your email
+                </p>
+                <p className={`text-base mt-2 font-bold ${timer < 10 ? "text-red-500 animate-pulse" : "text-gray-700"}`}>
+                  0:{timer.toString().padStart(2, "0")}
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-red-500 font-bold">
+                OTP expired, please resend OTP
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5 w-full text-center">
+              <label className="text-sm font-semibold text-gray-700 pb-2">
+                Enter OTP
+              </label>
+              <div className="flex justify-center">
+                <input
+                  type="text"
+                  maxLength={4}
+                  value={otp}
+                  disabled={otpExpired}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  placeholder="0000"
+                  className={`w-40 text-center tracking-[1rem] pl-[1rem] p-2.5 border rounded-xl text-2xl font-bold outline-none transition-all ${
+                    otpError
+                      ? "border-red-500 focus:ring-1 focus:ring-red-500"
+                      : "border-gray-300 focus:ring-1 focus:ring-green-600 focus:border-green-600"
+                  }`}
+                />
+              </div>
+              {otpError && (
+                <p className="text-red-500 text-xs mt-2">{otpError}</p>
               )}
-            </Stack>
+            </div>
 
-            <Stack spacing="5">
-              <FormControl isInvalid={otpError} isDisabled={otpExpired}>
-              <FormLabel textAlign="center" pb={4} >Enter OTP</FormLabel>
-                  <Flex justifyContent="center">
-                    <HStack spacing={6} mb={4}>
-                      <PinInput
-                        value={otp}
-                        onChange={setOtp}
-                        isDisabled={otpExpired}
-                        color
-                      >
-                        <PinInputField borderColor={otpError ? "red.300" : "gray.200"} />
-                        <PinInputField borderColor={otpError ? "red.300" : "gray.200"}/>
-                        <PinInputField borderColor={otpError ? "red.300" : "gray.200"}/>
-                        <PinInputField borderColor={otpError ? "red.300" : "gray.200"}/>
-                      </PinInput>
-                    </HStack>
-                  </Flex>
-                  {otpError &&  <FormErrorMessage justifyContent="center">{otpError}</FormErrorMessage>}
-              </FormControl>              
-              <Stack spacing="6">
-                <Button
-                  bg="teal.500"
-                  color="white"
-                  _hover={{ bg: "blue.800" }}
-                  onClick={otpExpired ? handleResend : handleVerifyOtp}
-                >
-                  {otpExpired ? "Resend OTP" : "Verify OTP"}
-                </Button>
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Container>
-    </Box>
+            <div className="flex flex-col gap-4 mt-2">
+              <button
+                onClick={otpExpired ? handleResend : handleVerifyOtp}
+                className="w-full py-3 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 transition-all shadow-sm hover:shadow cursor-pointer text-sm"
+              >
+                {otpExpired ? "Resend OTP" : "Verify OTP"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center py-4 border-t border-gray-200/50 mt-10">
+        <p className="text-xs text-gray-400">© 2026 QUICKWORK Inc. All rights reserved.</p>
+      </div>
+    </div>
   );
 }

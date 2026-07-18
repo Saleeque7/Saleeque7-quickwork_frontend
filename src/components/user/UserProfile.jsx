@@ -1,41 +1,7 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Stepper,
-  Step,
-  StepIndicator,
-  StepStatus,
-  StepIcon,
-  StepNumber,
-  StepTitle,
-  StepDescription,
-  StepSeparator,
-  useSteps,
-  Stack,
-  FormControl,
-  FormLabel,
-  Input,
-  IconButton,
-  Text,
-  Textarea,
-  List,
-  ListItem,
-  TableContainer,
-  Table,
-  Tbody,
-  Tr,
-  Td,
-  Radio,
-  FormErrorMessage,
-  Select,
-} from "@chakra-ui/react";
-
-import { ArrowBackIcon } from "@chakra-ui/icons";
-import { MdCheckCircle, MdCancel } from "react-icons/md";
+import { MdCheckCircle, MdCancel, MdClose } from "react-icons/md";
+import { FaArrowLeft } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
-import { CloseIcon } from "@chakra-ui/icons";
 import ProfileStart from "../uic/ProfileStart";
 import { useUserProfile } from "../../utils/context/ProfileContext";
 import ImageUploaderWithCrop from "./CroppedImage";
@@ -288,10 +254,9 @@ export default function UserProfile() {
     setDateOfBirth(date);
   };
 
-  const { activeStep, goToNext, goToPrevious } = useSteps({
-    index: 0,
-    count: steps.length,
-  });
+  const [activeStep, setActiveStep] = useState(0);
+  const goToNext = () => setActiveStep((prev) => Math.min(prev + 1, steps.length - 1));
+  const goToPrevious = () => setActiveStep((prev) => Math.max(prev - 1, 0));
   const handleNext = async () => {
     if (activeStep === 0) {
       if (
@@ -471,626 +436,423 @@ export default function UserProfile() {
   return (
     <>
       {isStart ? (
-        <Box
-        bgGradient="linear(to-b, green.100, gray.100)"
-        >
-          <Flex
-            justifyContent="center"
-            alignItems="center"
-            flexDirection={{ base: "column", md: "row" }}
-            p={5}
+        <div className="min-h-screen w-full bg-gradient-to-b from-green-50 to-gray-50 flex items-center justify-center p-5">
+          <div className="w-full md:w-3/4 bg-white p-8 mt-8 rounded-xl shadow-xl text-center">
+            {/* Custom Stepper */}
+            <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+              {steps.map((step, index) => (
+                <div key={index} className="flex-1 flex items-center w-full">
+                  <div className="flex items-center gap-2">
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold transition-all duration-300 ${activeStep >= index ? 'bg-teal-600 text-white' : 'bg-gray-200 text-gray-600'}`}>
+                      {index + 1}
+                    </div>
+                    <div className="text-left">
+                      <div className={`text-sm font-semibold transition-colors duration-300 ${activeStep === index ? 'text-teal-700' : 'text-gray-500'}`}>{step.title}</div>
+                      <div className="text-xs text-gray-400">{step.description}</div>
+                    </div>
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`hidden md:block flex-1 h-0.5 mx-4 transition-all duration-300 ${activeStep > index ? 'bg-teal-600' : 'bg-gray-200'}`} />
+                  )}
+                </div>
+              ))}
+            </div>
 
-          >
-            <Box
-              w={{ base: "100%", md: "75%" }}
-              mb={{ base: 8, md: 0 }}
-              alignItems="center"
-              p={8}
-              mt={8}
-              borderRadius="md"
-              textAlign="center"
-             boxShadow="xl"
-             bg={"white"}
-
-            >
-              <Stepper index={activeStep}>
-                {steps.map((step, index) => (
-                  <Step key={index}>
-                    <StepIndicator>
-                      <StepStatus
-                        complete={<StepIcon />}
-                        incomplete={<StepNumber />}
-                        active={<StepNumber />}
+            {activeStep === 0 && (
+              <>
+                <div className="text-left px-4 md:px-10 mb-6 mt-12 text-2xl font-bold text-teal-700 underline">
+                  Basic Info
+                </div>
+                <div className="flex flex-col md:flex-row gap-8 items-center p-5">
+                  <div className="w-full md:w-[70%] flex flex-col gap-4 text-left">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Full Name</label>
+                      <input
+                        type="text"
+                        value={name}
+                        disabled
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded font-bold bg-gray-100 cursor-not-allowed"
                       />
-                    </StepIndicator>
-
-                    <Box flexShrink="0">
-                      <StepTitle>{step.title}</StepTitle>
-                      <StepDescription>{step.description}</StepDescription>
-                    </Box>
-
-                    <StepSeparator />
-                  </Step>
-                ))}
-              </Stepper>
-
-              {activeStep === 0 && (
-                <>
-                  <Flex
-                    px={10}
-                    mb={-2}
-                    mt={12}
-                    fontSize={"2xl"}
-                    fontWeight="bold"
-                    color={"teal.700"}
-                    textDecoration="underline"
-                  >
-                    <Text>Basic Info</Text>
-                  </Flex>
-                  <Flex
-                    justifyContent="center"
-                    alignItems="center"
-                    flexDirection={{ base: "column", md: "row" }}
-                    p={5}
-                  >
-                    <Box w={{ base: "100%", md: "70%" }} p={5}>
-                      <Stack spacing={4}>
-                        <FormControl>
-                          <FormLabel>Full Name</FormLabel>
-                          <Input
-                            placeholder
-                            type="text"
-                            value={name}
-                            fontWeight={"bold"}
-                            isDisabled
-                            onChange={(e) => setName(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormControl>
-                          <FormLabel>Email</FormLabel>
-                          <Input
-                            placeholder
-                            type="email"
-                            isDisabled
-                            value={email}
-                            fontWeight={"bold"}
-                            onChange={(e) => setEmail(e.target.value)}
-                          />
-                        </FormControl>
-                        <FormControl isInvalid={!!phoneError}>
-                          <FormLabel>Phone</FormLabel>
-                          <Input
-                            placeholder
-                            type="phone"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                          />
-                          {phoneError && (
-                            <FormErrorMessage>{phoneError}</FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </Stack>
-                    </Box>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Email</label>
+                      <input
+                        type="email"
+                        disabled
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full p-2 border border-gray-300 rounded font-bold bg-gray-100 cursor-not-allowed"
+                      />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Phone</label>
+                      <input
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors ${
+                          phoneError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
+                    </div>
+                  </div>
+                  <div className="w-full md:w-[30%]">
                     <ImageUploaderWithCrop
                       user={user}
                       onImageCropped={handleImageCropped}
                       imageError={imageError}
                     />
-                  </Flex>
-                  <Flex
-                    justifyContent="center"
-                    alignItems="center"
-                    flexDirection={{ base: "column", md: "row" }}
-                    mt={-12}
-                    p={5}
-                  >
-                    <Box w={{ base: "100%", md: "50%" }} p={5}>
-                      <Stack spacing={4}>
-                        <FormControl isInvalid={!!dateOfBirtherror}>
-                          <FormLabel>Date of Birth</FormLabel>
-                          <Input
-                            placeholder=""
-                            type="date"
-                            value={dateOfBirth}
-                            sx={!dateOfBirth ? { opacity: 0.5 } : {}}
-                            onChange={handleDateChange}
-                          />
-                          {dateOfBirtherror && (
-                            <FormErrorMessage>
-                              {dateOfBirtherror}
-                            </FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </Stack>
-                    </Box>
-                    <Box w={{ base: "100%", md: "50%" }} p={5}>
-                      <Stack spacing={4}>
-                        <FormControl isInvalid={!!placeError}>
-                          <FormLabel>State</FormLabel>
-                          <Input
-                            placeholder
-                            type="text"
-                            value={place}
-                            onChange={(e) => setPlace(e.target.value)}
-                          />
-                          {placeError && (
-                            <FormErrorMessage>{placeError}</FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </Stack>
-                    </Box>
-                  </Flex>
-                </>
-              )}
+                  </div>
+                </div>
+                <div className="flex flex-col md:flex-row gap-4 px-5 pb-5">
+                  <div className="w-full md:w-1/2 text-left flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">Date of Birth</label>
+                    <input
+                      type="date"
+                      value={dateOfBirth}
+                      onChange={handleDateChange}
+                      className={`w-full p-2 border rounded outline-none transition-colors ${
+                        dateOfBirtherror ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                      } ${!dateOfBirth ? "opacity-50" : ""}`}
+                    />
+                    {dateOfBirtherror && <p className="text-red-500 text-xs mt-1">{dateOfBirtherror}</p>}
+                  </div>
+                  <div className="w-full md:w-1/2 text-left flex flex-col gap-1">
+                    <label className="text-sm font-semibold text-gray-700">State</label>
+                    <input
+                      type="text"
+                      value={place}
+                      onChange={(e) => setPlace(e.target.value)}
+                      className={`w-full p-2 border rounded outline-none transition-colors ${
+                        placeError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                      }`}
+                    />
+                    {placeError && <p className="text-red-500 text-xs mt-1">{placeError}</p>}
+                  </div>
+                </div>
+              </>
+            )}
 
-              {activeStep === 1 && (
-                <>
-                  <Flex
-                    px={10}
-                    mb={-2}
-                    mt={12}
-                    fontSize={"2xl"}
-                    fontWeight="bold"
-                    color={"teal.700"}
-                    textDecoration="underline"
-                  >
-                    <Text>Professional Information</Text>
-                  </Flex>
-                  <Flex
-                    justifyContent="start"
-                    flexDirection={{ base: "column", md: "row" }}
-                    p={5}
-                  >
-                    <Box w={{ base: "100%", md: "70%" }} p={5}>
-                      <Stack spacing={4}>
-                        <FormControl isInvalid={!!jobTitleError}>
-                          <FormLabel>Job Title</FormLabel>
-                          <Input
-                            type="text"
-                            placeholder="Ex:Full-stack developer"
-                            value={jobTitle}
-                            onChange={(e) => setJobTitle(e.target.value)}
-                          />
-                          {jobTitleError && (
-                            <FormErrorMessage>{jobTitleError}</FormErrorMessage>
-                          )}
-                        </FormControl>
-                        <FormControl isInvalid={!!OverviewError}>
-                          <FormLabel>Overview</FormLabel>
-                          <Textarea
-                            placeholder="Enter your top skills, experiences, and interests. This is one of the first things clients will see on your profile."
-                            value={Overview}
-                            onChange={(e) => setOverview(e.target.value)}
-                          />
-                          <Box mt={1} textAlign="right">
-                            <Text fontSize="xs" color="gray.600">
-                              At least 50 characters
-                            </Text>
-                          </Box>
-                          {OverviewError && (
-                            <FormErrorMessage>{OverviewError}</FormErrorMessage>
-                          )}
-                        </FormControl>
-                      </Stack>
-                    </Box>
-                  </Flex>
-                  <Flex
-                    px={10}
-                    mb={-2}
-                    mt={4}
-                    fontSize={"2xl"}
-                    fontWeight="bold"
-                    color={"teal.700"}
-                    textDecoration="underline"
-                  >
-                    <Text>Your Skills</Text>
-                  </Flex>
-                  <Flex
-                    justifyContent="start"
-                    flexDirection={{ base: "column", md: "row" }}
-                    p={5}
-                  >
-                    <Box w={{ base: "100%", md: "70%" }} p={5}>
-                      <Stack spacing={4}>
-                        <FormControl isInvalid={!!skillError}>
-                          <FormLabel>Add Skills</FormLabel>
-                          <Flex align="center">
-                            <Input
-                              type="text"
-                              placeholder="Enter skills here"
-                              value={skill}
-                              onChange={(e) => setSkill(e.target.value)}
+            {activeStep === 1 && (
+              <>
+                <div className="text-left px-4 md:px-10 mb-6 mt-12 text-2xl font-bold text-teal-700 underline">
+                  Professional Information
+                </div>
+                <div className="flex flex-col gap-4 p-5 text-left">
+                  <div className="w-full md:w-[70%] flex flex-col gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Job Title</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: Full-stack developer"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors ${
+                          jobTitleError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      {jobTitleError && <p className="text-red-500 text-xs mt-1">{jobTitleError}</p>}
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Overview</label>
+                      <textarea
+                        placeholder="Enter your top skills, experiences, and interests. This is one of the first things clients will see on your profile."
+                        value={Overview}
+                        onChange={(e) => setOverview(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors h-32 ${
+                          OverviewError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      <div className="text-right">
+                        <span className="text-xs text-gray-500">At least 50 characters</span>
+                      </div>
+                      {OverviewError && <p className="text-red-500 text-xs mt-1">{OverviewError}</p>}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-left px-4 md:px-10 mb-6 mt-4 text-2xl font-bold text-teal-700 underline">
+                  Your Skills
+                </div>
+                <div className="flex flex-col gap-4 p-5 text-left">
+                  <div className="w-full md:w-[70%] flex flex-col gap-4">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Add Skills</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="Enter skills here"
+                          value={skill}
+                          onChange={(e) => setSkill(e.target.value)}
+                          className="flex-1 p-2 border border-gray-300 rounded outline-none focus:border-teal-500 transition-colors"
+                        />
+                        <button
+                          type="button"
+                          onClick={addSkill}
+                          className="px-4 py-2 bg-teal-600 text-white font-semibold rounded hover:bg-teal-700 transition-colors cursor-pointer"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      {skillError && <p className="text-red-500 text-xs mt-1">{skillError}</p>}
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {skills.map((skill, index) => (
+                        <div
+                          key={index}
+                          className="flex items-center gap-2 bg-gray-200 border border-gray-300 rounded-md px-3 py-1.5 shadow-sm text-sm"
+                        >
+                          <span>{skill}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeSkill(index)}
+                            className="p-1 rounded-full hover:bg-red-200 text-red-600 transition-colors cursor-pointer"
+                          >
+                            <MdClose className="text-xs" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="text-left px-4 md:px-10 mb-6 mt-4 text-2xl font-bold text-teal-700 underline">
+                  Work fee or Hourly rate
+                </div>
+                <div className="p-5">
+                  <div className="w-full overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <tbody>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-4 text-lg font-medium">
+                            Hourly rate <br />
+                            <span className="text-sm text-gray-500 font-normal">
+                              Total amount the client will see.
+                            </span>
+                          </td>
+                          <td className="py-4 text-right">
+                            <div className="flex flex-col items-end gap-1">
+                              <input
+                                placeholder="₹ 0.00 / hr"
+                                value={rate ? `₹${rate}` : ""}
+                                onChange={handleRate}
+                                className={`p-2 border rounded text-right w-48 outline-none focus:border-teal-500 transition-colors ${
+                                  rateError ? "border-red-500" : "border-gray-300"
+                                }`}
+                              />
+                              {rateError && <p className="text-red-500 text-xs">{rateError}</p>}
+                            </div>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-4 text-lg font-medium">
+                            Service fee <br />
+                            <span className="text-sm text-gray-500 font-normal">
+                              This helps us run the platform and provide services like payment protection and customer support.
+                            </span>
+                          </td>
+                          <td className="py-4 text-right">
+                            <input
+                              placeholder="₹ 0.00 / hr"
+                              value={serviceFee ? `₹${serviceFee}` : ""}
+                              readOnly
+                              className="p-2 border border-gray-300 rounded text-right w-48 bg-gray-100 cursor-not-allowed"
                             />
-                            <Button
-                              ml={2}
-                              onClick={addSkill}
-                              colorScheme="teal"
-                            >
-                              Add
-                            </Button>
-                          </Flex>
-                          {skillError && (
-                            <FormErrorMessage>{skillError}</FormErrorMessage>
-                          )}
-                        </FormControl>
-                        <Flex wrap="wrap" mr={4}>
-                          {skills.map((skill, index) => (
-                            <Box
-                              key={index}
-                              display="flex"
-                              alignItems="center"
-                              border="1px solid gray.400"
-                              boxShadow={5}
-                              bg={"gray.200"}
-                              borderRadius="md"
-                              mr={2}
-                              px={4}
-                              py={2}
-                              mb={3}
-                            >
-                              {skill}
-                              
-                                <IconButton
-                                  icon={<CloseIcon />}
-                                  size="xs"
-                                  onClick={() => removeSkill(index)}
-                                  ml={2}
-                                  colorScheme="red"
-                                />
-                              
-                            </Box>
+                          </td>
+                        </tr>
+                        <tr className="border-b border-gray-200">
+                          <td className="py-4 text-lg font-medium">
+                            You'll get <br />
+                            <span className="text-sm text-gray-500 font-normal">
+                              The estimated amount you'll receive after service fees
+                            </span>
+                          </td>
+                          <td className="py-4 text-right">
+                            <input
+                              placeholder="₹ 0.00 / hr"
+                              readOnly
+                              value={profit ? `₹${profit}` : ""}
+                              className="p-2 border border-gray-300 rounded text-right w-48 bg-gray-100 cursor-not-allowed"
+                            />
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {activeStep === 2 && (
+              <>
+                {hasExperience === null && (
+                  <div className="py-6 px-8 max-w-2xl mx-auto mt-12 bg-white shadow-xl rounded-3xl border border-gray-200 flex flex-col items-center">
+                    <h3 className="text-xl font-bold text-center mb-6 text-gray-800">
+                      Do you have any professional experience?
+                    </h3>
+                    <div className="flex flex-col sm:flex-row gap-6 w-full justify-center">
+                      <div
+                        onClick={() => handleBoxClick("boxA")}
+                        className={`flex flex-col justify-center items-center p-6 border rounded-xl w-60 h-44 cursor-pointer relative transition-all duration-300 ${
+                          selectedBox === "boxA" ? "border-green-600 ring-2 ring-green-600/20 bg-green-50/10" : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <MdCheckCircle size={28} className="text-teal-600 mb-2" />
+                        <span className="text-teal-800 font-semibold text-lg text-center">
+                          Yes, I have experience.
+                        </span>
+                        {selectedBox === "boxA" && (
+                          <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-green-600 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div
+                        onClick={() => handleBoxClick("boxB")}
+                        className={`flex flex-col justify-center items-center p-6 border rounded-xl w-60 h-44 cursor-pointer relative transition-all duration-300 ${
+                          selectedBox === "boxB" ? "border-green-600 ring-2 ring-green-600/20 bg-green-50/10" : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <MdCancel size={28} className="text-teal-600 mb-2" />
+                        <span className="text-teal-800 font-semibold text-lg text-center">
+                          No, I don't have any experience.
+                        </span>
+                        {selectedBox === "boxB" && (
+                          <div className="absolute top-3 right-3 w-4 h-4 rounded-full bg-green-600 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 rounded-full bg-white" />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-center mt-8">
+                      <button
+                        onClick={handleExperienceSubmit}
+                        disabled={!selectedBox}
+                        className="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-800 disabled:opacity-50 transition-colors cursor-pointer"
+                      >
+                        Continue
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {hasExperience === true && (
+                  <div className="flex flex-col gap-4 mt-12 text-left max-w-xl mx-auto">
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Job Title</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: Full-stack developer"
+                        value={jobTitleExp}
+                        onChange={(e) => setJobTitleExp(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors ${
+                          jobTitleErrorExp ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      {jobTitleErrorExp && <p className="text-red-500 text-xs mt-1">{jobTitleErrorExp}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Company</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: ABC Corp"
+                        value={companyExp}
+                        onChange={(e) => setCompanyExp(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors ${
+                          companyExpError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      {companyExpError && <p className="text-red-500 text-xs mt-1">{companyExpError}</p>}
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Duration</label>
+                      <div className="w-full md:w-1/2">
+                        <select
+                          value={duration}
+                          onChange={handleDurationChange}
+                          className={`w-full p-2 border rounded outline-none bg-white transition-colors ${
+                            durationError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                          }`}
+                        >
+                          <option value="">Select duration</option>
+                          {durationOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
                           ))}
-                        </Flex>
-                      </Stack>
-                    </Box>
-                  </Flex>
-                  <Flex
-                    px={10}
-                    mb={-2}
-                    mt={4}
-                    fontSize={"2xl"}
-                    fontWeight="bold"
-                    color={"teal.700"}
-                    textDecoration="underline"
-                  >
-                    <Text>Work fee or Hourly rate</Text>
-                  </Flex>
-                  <Flex
-                    justifyContent="start"
-                    flexDirection={{ base: "column", md: "row" }}
-                    p={5}
-                  >
-                    <Box w={{ base: "100%", md: "100%" }} p={5}>
-                      <Stack spacing={4}>
-                        <TableContainer>
-                          <Table>
-                            <Tbody>
-                              <Tr>
-                                <Td fontSize={"xl"}>
-                                  Hourly rate <br />
-                                  <Text fontSize={"sm"} mt={2}>
-                                    Total amount the client will see.
-                                  </Text>
-                                </Td>
-                                <Td isNumeric>
-                                  <FormControl isInvalid={!!rateError}>
-                                    <Input
-                                      placeholder="₹ 0:00 / hr"
-                                      value={rate ? `₹${rate}` : ""}
-                                      onChange={handleRate}
-                                      textAlign="right"
-                                    />
-                                    {rateError && (
-                                      <FormErrorMessage>
-                                        {rateError}
-                                      </FormErrorMessage>
-                                    )}
-                                  </FormControl>
-                                </Td>
-                              </Tr>
-                              <Tr>
-                                <Td fontSize={"xl"}>
-                                  Service fee <br />
-                                  <Text fontSize="sm" mt={2}>
-                                    This helps us run the platform and provide
-                                    services like payment protection and
-                                    customer support.
-                                  </Text>
-                                </Td>
-                                <Td isNumeric>
-                                  <Input
-                                    placeholder="₹ 0:00 / hr"
-                                    value={serviceFee ? `₹${serviceFee}` : ""}
-                                    readOnly
-                                    textAlign="right"
-                                  />
-                                </Td>
-                              </Tr>
-                              <Tr>
-                                <Td fontSize={"xl"}>
-                                  You'll get
-                                  <br />
-                                  <Text fontSize={"sm"} mt={2}>
-                                    The estimated amount you'll receive after
-                                    service fees
-                                  </Text>
-                                </Td>
-                                <Td isNumeric>
-                                  <Input
-                                    placeholder="₹ 0:00 / hr"
-                                    readOnly
-                                    value={profit ? `₹${profit}` : ""}
-                                    textAlign="right"
-                                  />
-                                </Td>
-                              </Tr>
-                            </Tbody>
-                          </Table>
-                        </TableContainer>
-                      </Stack>
-                    </Box>
-                  </Flex>
-                </>
-              )}
-              {activeStep === 2 && (
-                <>
-                  {hasExperience === null && (
-                    <Box
-                      py={{ base: "0", sm: "4" }}
-                      px={{ base: "4", sm: "6" }}
-                      minH="md"
-                      boxShadow="xl"
-                      borderRadius="3xl"
-                      border="1px solid"
-                      borderColor="gray.200"
-                      alignContent="center"
-                      width="2xl"
-                      mx="auto"
-                      mt={12}
+                        </select>
+                        {durationError && <p className="text-red-500 text-xs mt-1">{durationError}</p>}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1">
+                      <label className="text-sm font-semibold text-gray-700">Overview</label>
+                      <textarea
+                        placeholder="Describe your role, responsibilities, and achievements"
+                        value={expOverview}
+                        onChange={(e) => setExpOverview(e.target.value)}
+                        className={`w-full p-2 border rounded outline-none transition-colors h-32 ${
+                          expOverviewError ? "border-red-500 focus:border-red-500" : "border-gray-300 focus:border-teal-500"
+                        }`}
+                      />
+                      {expOverviewError && <p className="text-red-500 text-xs mt-1">{expOverviewError}</p>}
+                    </div>
+
+                    <div className="flex justify-center mt-6">
+                      <button
+                        onClick={handlebackpage}
+                        className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 text-white font-semibold rounded hover:bg-blue-800 transition-colors cursor-pointer"
+                      >
+                        <FaArrowLeft className="text-sm" />
+                        <span>Back</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {hasExperience === false && (
+                  <div className="flex flex-col items-center gap-4 mt-12 text-center">
+                    <p className="text-lg text-gray-700">
+                      Thank you for letting us know. You can proceed as a fresher.
+                    </p>
+                    <button
+                      onClick={handlebackpage}
+                      className="flex items-center justify-center gap-2 px-6 py-2.5 bg-blue-500 text-white font-semibold rounded hover:bg-blue-800 transition-colors cursor-pointer"
                     >
-                      <Text fontSize="xl" fontWeight="bold" textAlign="center">
-                        Do you have any professional experience?
-                      </Text>
+                      <FaArrowLeft className="text-sm" />
+                      <span>Back</span>
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
 
-                      <Stack spacing="6" mt={4}>
-                        <Stack
-                          direction="row"
-                          justifyContent="space-between"
-                          spacing={4}
-                        >
-                          <Box
-                            bg="transparent"
-                            alignContent="center"
-                            position="relative"
-                            borderWidth={selectedBox === "boxA" ? "2px" : "1px"}
-                            borderColor={
-                              selectedBox === "boxA" ? "green.600" : "gray.200"
-                            }
-                            onClick={() => handleBoxClick("boxA")}
-                            cursor="pointer"
-                            p={4}
-                            borderRadius="md"
-                            w="250px"
-                            h="180px"
-                          >
-                            <Flex
-                              justifyContent="center"
-                              alignItems="center"
-                              h="100%"
-                            >
-                              <MdCheckCircle size={24} color="teal" />
-                              <Text ml={1} color="teal.800" fontSize="lg">
-                                Yes, I have experience.
-                              </Text>
-                            </Flex>
-                            {selectedBox === "boxA" && (
-                              <Radio
-                                position="absolute"
-                                top={2}
-                                right={2}
-                                onChange={() => setSelectedBox("boxA")}
-                                isChecked
-                              />
-                            )}
-                          </Box>
-                          <Box
-                            bg="transparent"
-                            alignItems="center"
-                            position="relative"
-                            borderWidth={selectedBox === "boxB" ? "2px" : "1px"}
-                            borderColor={
-                              selectedBox === "boxB" ? "green.600" : "gray.200"
-                            }
-                            onClick={() => handleBoxClick("boxB")}
-                            cursor="pointer"
-                            p={4}
-                            borderRadius="md"
-                            w="250px"
-                            h="180px"
-                          >
-                            <Flex
-                              justifyContent="center"
-                              alignItems="center"
-                              h="100%"
-                            >
-                              <MdCancel size={24} color="teal" />
-                              <Text ml={1} color="teal.800" fontSize="lg">
-                                No, I don't have any experience.
-                              </Text>
-                            </Flex>
-                            {selectedBox === "boxB" && (
-                              <Radio
-                                position="absolute"
-                                top={2}
-                                right={2}
-                                onChange={() => setSelectedBox("boxB")}
-                                isChecked
-                              />
-                            )}
-                          </Box>
-                        </Stack>
-
-                        <Flex
-                          direction="row"
-                          gap={4}
-                          alignItems="center"
-                          justifyContent="center"
-                          mt={4}
-                        >
-                          <Button
-                            bg={"blue.500"}
-                            color={"white"}
-                            _hover={{ bg: "blue.800" }}
-                            onClick={handleExperienceSubmit}
-                            disabled={!selectedBox}
-                            opacity={!selectedBox ? 0.5 : 1}
-                            width="150px"
-                            height="50px"
-                          >
-                            continue
-                          </Button>
-                        </Flex>
-                      </Stack>
-                    </Box>
-                  )}
-
-                  {hasExperience === true && (
-                    <Stack spacing={4} mt={12}>
-                      <FormControl isInvalid={!!jobTitleErrorExp}>
-                        <FormLabel>Job Title</FormLabel>
-                        <Input
-                          type="text"
-                          placeholder="Ex: Full-stack developer"
-                          value={jobTitleExp}
-                          onChange={(e) => setJobTitleExp(e.target.value)}
-                        />
-                        {jobTitleErrorExp && <FormErrorMessage>{ jobTitleErrorExp} </FormErrorMessage>}
-                      </FormControl>
-                      <FormControl isInvalid={!!companyExpError}>
-                        <FormLabel>Company</FormLabel>
-                        <Input
-                          type="text"
-                          placeholder="Ex: ABC Corp"
-                          value={companyExp}
-                          onChange={(e) => setCompanyExp(e.target.value)}
-                        />
-                        {
-                          companyExpError && <FormErrorMessage>{companyExpError}</FormErrorMessage>
-                        }
-                      </FormControl>
-
-                      <FormLabel>Duration</FormLabel>
-                      <Flex
-                        justifyContent="start"
-                        alignItems="center"
-                        flexDirection={{ base: "column", md: "row" }}
-                        p={5}
-                        mt={-12}
-                      >
-                        <Box w={{ base: "100%", md: "50%" }} p={5}>
-                          <Stack ml={-10}>
-                            <FormControl isInvalid={!!durationError}>
-                              <Select
-                                placeholder="Select duration"
-                                value={duration}
-                                onChange={handleDurationChange}
-                              >
-                                {durationOptions.map((option) => (
-                                  <option
-                                    key={option.value}
-                                    value={option.value}
-                                  >
-                                    {option.label}
-                                  </option>
-                                ))}
-                              </Select>
-                               { durationError && <FormErrorMessage>
-                                {durationError}
-                                </FormErrorMessage>}
-                            </FormControl>
-                          </Stack>
-                        </Box>
-                      </Flex>
-
-                      <FormControl isInvalid={!!expOverviewError}>
-                        <FormLabel>Overview</FormLabel>
-                        <Textarea
-                          placeholder="Describe your role, responsibilities, and achievements"
-                          value={expOverview}
-                          onChange={(e) => setExpOverview(e.target.value)}
-                        />
-                        {expOverviewError && 
-                        <FormErrorMessage>
-                          {expOverviewError}
-                        </FormErrorMessage>
-                        }
-                      </FormControl>
-                      <Flex
-                        direction="row"
-                        gap={4}
-                        alignItems="center"
-                        justifyContent="center"
-                        mt={4}
-                      >
-                        <Button
-                          bg={"blue.500"}
-                          color={"white"}
-                          _hover={{ bg: "blue.800" }}
-                          onClick={handlebackpage}
-                          width="150px"
-                          height="50px"
-                          leftIcon={<ArrowBackIcon />}
-                        >
-                          Back
-                        </Button>
-                      </Flex>
-                    </Stack>
-                  )}
-
-                  {hasExperience === false &&   (
-                    <Stack spacing={4} mt={4}>
-                      <Text fontSize="lg">
-                        Thank you for letting us know. You can proceed as a
-                        fresher.
-                      </Text>
-                      <Flex
-                        direction="row"
-                        gap={4}
-                        alignItems="center"
-                        justifyContent="center"
-                        mt={4}
-                      >
-                        <Button
-                          bg={"blue.500"}
-                          color={"white"}
-                          _hover={{ bg: "blue.800" }}
-                          onClick={handlebackpage}
-                          width="150px"
-                          height="50px"
-                          leftIcon={<ArrowBackIcon />}
-                        >
-                          back
-                        </Button>
-                      </Flex>
-                    </Stack>
-                  )}
-                </>
-              )}
-              <Flex mt={4} justifyContent="space-between">
-                <Button isDisabled={activeStep === 0} onClick={handlePrev}>
-                  Previous
-                </Button>
-                <Button
-                  isDisabled={activeStep === steps.length - 1 && !preformSubmit}
-                  onClick={handleNext}
-                  color={activeStep === 2 ? "teal" : ""}
-                >
-                  {activeStep === 2 ? "submit" : "Next"}
-                </Button>
-              </Flex>
-            </Box>
-          </Flex>
-        </Box>
+            <div className="flex mt-8 justify-between border-t border-gray-200 pt-6">
+              <button
+                disabled={activeStep === 0}
+                onClick={handlePrev}
+                className="px-5 py-2 border border-gray-300 rounded font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                Previous
+              </button>
+              <button
+                disabled={activeStep === steps.length - 1 && !preformSubmit}
+                onClick={handleNext}
+                className={`px-5 py-2 font-semibold rounded transition-colors cursor-pointer ${
+                  activeStep === 2 ? "bg-teal-600 hover:bg-teal-700 text-white" : "bg-teal-500 hover:bg-teal-600 text-white"
+                }`}
+              >
+                {activeStep === 2 ? "Submit" : "Next"}
+              </button>
+            </div>
+          </div>
+        </div>
       ) : (
         <ProfileStart onProfileStart={handleProfileStart} user={user} />
       )}

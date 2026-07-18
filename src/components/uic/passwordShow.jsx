@@ -1,60 +1,63 @@
-import {
-  FormControl,
-  FormLabel,
-  IconButton,
-  Input,
-  InputGroup,
-  InputRightElement,
-  useDisclosure,
-  useMergeRefs,
-  FormErrorMessage,
-} from "@chakra-ui/react";
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useState } from "react";
 import { HiEye, HiEyeOff } from "react-icons/hi";
-import { useState } from "react";
 
 export const PasswordField = forwardRef(
   ({ value, onChange, passwordError, ...props }, ref) => {
-    const { isOpen, onToggle } = useDisclosure();
+    const [isOpen, setIsOpen] = useState(false);
     const inputRef = useRef(null);
-    const mergeRef = useMergeRefs(inputRef, ref);
-    const onClickReveal = () => {
-      onToggle();
+
+    const handleRef = (node) => {
+      inputRef.current = node;
+      if (typeof ref === "function") {
+        ref(node);
+      } else if (ref) {
+        ref.current = node;
+      }
+    };
+
+    const onClickReveal = (e) => {
+      e.preventDefault();
+      setIsOpen(!isOpen);
       if (inputRef.current) {
-        inputRef.current.focus({ preventScroll: true });
+        inputRef.current.focus();
       }
     };
 
     return (
-      <FormControl isInvalid={passwordError}>
-        <FormLabel htmlFor="password">Password</FormLabel>
-        <InputGroup>
-          <InputRightElement>
-            <IconButton
-              variant="text"
-              aria-label={isOpen ? "Mask password" : "Reveal password"}
-              icon={isOpen ? <HiEyeOff /> : <HiEye />}
-              onClick={onClickReveal}
-            />
-          </InputRightElement>
-          <Input
+      <div className="flex flex-col gap-1 w-full">
+        <label className="text-sm font-semibold text-gray-700" htmlFor="password">
+          Password
+        </label>
+        <div className="relative flex items-center">
+          <input
             id="password"
-            ref={mergeRef}
+            ref={handleRef}
             name="password"
             type={isOpen ? "text" : "password"}
             autoComplete="current-password"
             required
-            {...props}
             value={value}
             onChange={onChange}
-            borderColor={passwordError ? "red.500" : undefined}
-            focusBorderColor={passwordError ? "red.500" : undefined}
+            className={`w-full p-2 pr-10 border rounded outline-none transition-colors ${
+              passwordError
+                ? "border-red-500 focus:border-red-500"
+                : "border-gray-300 focus:border-teal-500"
+            }`}
+            {...props}
           />
-        </InputGroup>
-          {passwordError && (
-            <FormErrorMessage>{passwordError}</FormErrorMessage>
-          )}
-      </FormControl>
+          <button
+            type="button"
+            onClick={onClickReveal}
+            className="absolute right-3 text-gray-500 hover:text-gray-700 outline-none"
+            aria-label={isOpen ? "Mask password" : "Reveal password"}
+          >
+            {isOpen ? <HiEyeOff className="text-lg" /> : <HiEye className="text-lg" />}
+          </button>
+        </div>
+        {passwordError && (
+          <p className="text-red-500 text-xs mt-1">{passwordError}</p>
+        )}
+      </div>
     );
   }
 );

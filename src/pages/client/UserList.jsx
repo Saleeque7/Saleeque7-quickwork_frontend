@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from "react";
 import { clientAxiosInstance } from "../../utils/api/privateAxios";
 import { browseUsers, createChatsApi } from "../../utils/api/api";
 import { useNavigate } from "react-router-dom";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Button, useDisclosure } from "@chakra-ui/react";
 import { FaSearch } from "react-icons/fa";
 import debounce from "lodash.debounce";
 import { Pagination } from "../../components/user/Pagination";
@@ -11,13 +10,12 @@ export default function UserList() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
   const navigate = useNavigate();
 
-  
   const fetchUsers = useCallback(
     debounce(async (query, page=1, limit=3) => {
       try {
@@ -43,7 +41,7 @@ export default function UserList() {
 
   const handleOpenModal = (user) => {
     setSelectedUser(user);
-    onOpen();
+    setIsOpen(true);
   };
 
   const handleStartConversation = async () => {
@@ -57,13 +55,13 @@ export default function UserList() {
     } catch (error) {
       console.error(error, "error in create chat");
     } finally {
-      onClose();
+      setIsOpen(false);
     }
   };
 
   return (
     <>
-      <div className="p-10 min-h-[100vh]">
+      <div className="p-10 min-h-[100vh] text-left">
         <div className="flex justify-between items-center mb-10">
           <div className="flex items-center text-2xl px-8 font-semibold text-teal-800">
             Find Talents That Match You
@@ -97,13 +95,13 @@ export default function UserList() {
                         alt={user?.name || ""}
                         className="w-10 h-10 rounded-full"
                       />
-                      <h2 className="font-semibold text-md cursor-pointer" onClick={() => navigate(`/client/userProfile/${user._id}`)}>
+                      <h2 className="font-semibold text-md cursor-pointer hover:underline" onClick={() => navigate(`/client/userProfile/${user._id}`)}>
                         {user?.name || ""}
                       </h2>
                     </div>
                     <div className="flex items-center justify-between text-gray-500">
                       <button
-                        className="mr-3 border-2 rounded-md p-1 border-teal-600 hover:bg-teal-600 hover:text-white focus:outline-none"
+                        className="mr-3 border-2 rounded-md p-1 border-teal-600 hover:bg-teal-600 hover:text-white focus:outline-none transition-colors cursor-pointer"
                         onClick={() => handleOpenModal(user)}
                       >
                         <span className="p-4">Message</span>
@@ -120,7 +118,7 @@ export default function UserList() {
                     {user.skills.map((skill) => (
                       <span
                         key={skill}
-                        className="inline-block rounded-full px-2 bg-teal-100 text-teal-800 mr-2 mb-2"
+                        className="inline-block rounded-full px-3 py-1 bg-teal-100 text-teal-800 mr-2 mb-2 text-xs font-semibold"
                       >
                         {skill}
                       </span>
@@ -129,8 +127,8 @@ export default function UserList() {
                 </div>
               ))
             ) : (
-              <div className="flex justify-center items-center mt-20 min-h-[50vh]">
-                <p className="text-start font-semibold text-xl text-orange-400">
+              <div className="flex justify-center items-center mt-20 min-h-[50vh] w-full">
+                <p className="text-center font-semibold text-xl text-orange-400">
                   No users found
                 </p>
               </div>
@@ -144,24 +142,38 @@ export default function UserList() {
         onPageChange={setCurrentPage}
       />
 
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Start Conversation</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            Do you want to start a conversation with {selectedUser?.name}?
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleStartConversation}>
-              Yes
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              No
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">Start Conversation</h3>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6 text-left text-gray-700">
+              Do you want to start a conversation with {selectedUser?.name}?
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={handleStartConversation}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+              >
+                Yes
+              </button>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

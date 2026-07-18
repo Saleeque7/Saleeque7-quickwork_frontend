@@ -1,22 +1,18 @@
 import React from 'react'
 import {Transition} from "../../../components/uic/Animation/Animation"
-import Navbar from "../../../components/main/Navbar";
-import Footer from "../../../components/main/footer";
 import Jobform from '../../../components/Client/JobForm/Jobform';
-import "./PostJobs.scss";
+
 export default function PostJobs() {
   return (
-    <div className="Add-main-div">
-    
+    <div className="w-full bg-[#f8f8f8] h-auto pb-12">
       <Transition>
-        <div className="addtemplate-letter">
-          <h1 className="additem">Create a New Job post</h1>
+        <div className="w-full flex justify-center items-center pt-[50px]">
+          <h1 className="text-[30px] font-sans font-semibold text-teal-600">Create a New Job post</h1>
         </div>
-        <div className="Add-templ-func">
+        <div className="m-[50px] mr-8 md:mr-32">
           <Jobform page={'create'}/>
         </div>
       </Transition>
-   
     </div>
   )
 }

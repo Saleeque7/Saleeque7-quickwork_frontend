@@ -1,29 +1,13 @@
-import {
-  Button,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  FormControl,
-  FormLabel,
-  Input,
-  Textarea,
-} from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
 import { FaEdit, FaPlus, FaTrash } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import { userProfileApi, editImageApi } from "../../utils/api/api";
 import { userAxiosInstance } from "../../utils/api/privateAxios";
 import { differenceInYears } from "date-fns";
 import { setUser } from "../../utils/Redux/userSlice";
-import { useDispatch  } from "react-redux";
+import { useDispatch } from "react-redux";
 import ImageUploaderWithCrop from "./CroppedImage";
 
 export default function EditableProfile({ userData, setUserData }) {
-
   const dispatch = useDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editField, setEditField] = useState(null);
@@ -45,7 +29,7 @@ export default function EditableProfile({ userData, setUserData }) {
   const [errorMessage, setErrorMessage] = useState("");
   const [skillsError, setSkillsError] = useState("");
 
-  const [image, setImage] = useState( null);
+  const [image, setImage] = useState(null);
   const [imageError, setImageError] = useState("");
 
   useEffect(() => {
@@ -54,16 +38,16 @@ export default function EditableProfile({ userData, setUserData }) {
         const response = await fetch(image);
         const blob = await response.blob();
         const file = new File([blob], "profile_image.jpg", { type: blob.type });
- 
-        const formData = new FormData();     
-        formData.append("image", file);      
-      
-        const res = await userAxiosInstance.post(editImageApi, formData,{
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const res = await userAxiosInstance.post(editImageApi, formData, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
-        if(res.data){
+        if (res.data) {
           dispatch(setUser(res.data));
           setUserData(res.data);
         }
@@ -98,64 +82,36 @@ export default function EditableProfile({ userData, setUserData }) {
 
   const handleSkillsSave = async () => {
     if (skills.length === 0) {
-      setSkillsError("Skills cannot be empty.");
+      setSkillsError("Please add at least one skill");
       return;
     }
-    if (skills.includes("")) {
-      setSkillsError(
-        "Please fill in all skill fields before adding a new one."
-      );
-      return;
-    }
-    const updatedData = { ...userData, skills };
+    const filteredSkills = skills.filter((skill) => skill.trim() !== "");
+    const updatedData = { ...userData, skills: filteredSkills };
     try {
-      const res = await userAxiosInstance.put(userProfileApi, updatedData);
-      console.log(res.data);
+      const res = await userAxiosInstance.post(userProfileApi, updatedData);
       if (res.data) {
+        dispatch(setUser(res.data));
         setUserData(res.data);
         setIsSkillsModalOpen(false);
       }
     } catch (error) {
-      console.error(error, "error in save skills");
+      console.error("Error updating skills:", error);
     }
   };
 
-  const calculateAge = (birthDate) => {
-    if (!birthDate) return null;
-    const birth = new Date(birthDate);
-    const today = new Date();
-    return differenceInYears(today, birth);
+  const calculateAge = (dateOfBirth) => {
+    if (!dateOfBirth) return "";
+    const age = differenceInYears(new Date(), new Date(dateOfBirth));
+    return age;
   };
-
-  const setUserrate = (rate) => {
-    const ser = (rate * 10) / 100;
-    const pro = rate - ser;
-    setRate(rate);
-    setServiceFee(ser);
-    setProfit(pro);
-  };
-
-  useEffect(() => {
-    if (userData?.hourlyRate) {
-      setUserrate(userData?.hourlyRate);
-    }
-  }, [userData?.hourlyRate]);
-
-  useEffect(() => {
-    if (userData?.skills) {
-      setSkills(userData?.skills);
-    }
-  }, [userData?.skills]);
 
   const openModal = (field) => {
-    if (field === "") return;
     setEditField(field);
-    if (field === "dateOfBirth") {
-      setEditValue(
-        userData[field]
-          ? new Date(userData[field]).toISOString().split("T")[0]
-          : ""
-      );
+    setErrorMessage("");
+    if (field === "dateOfBirth" && userData[field]) {
+      const date = new Date(userData[field]);
+      const formattedDate = date.toISOString().split("T")[0];
+      setEditValue(formattedDate);
     } else {
       setEditValue(userData[field] || "");
     }
@@ -165,17 +121,19 @@ export default function EditableProfile({ userData, setUserData }) {
   const closeModal = () => {
     setIsModalOpen(false);
     setEditField(null);
-    setErrorMessage("");
     setEditValue("");
+    setErrorMessage("");
   };
 
   const openSkillsModal = () => {
+    setSkills(userData?.skills || []);
+    setSkillsError("");
     setIsSkillsModalOpen(true);
   };
 
   const closeSkillsModal = () => {
-    setSkillsError("");
     setIsSkillsModalOpen(false);
+    setSkillsError("");
   };
 
   const handleSkillChange = (index, event) => {
@@ -185,23 +143,16 @@ export default function EditableProfile({ userData, setUserData }) {
   };
 
   const addSkill = () => {
-    if (skills.includes("")) {
-      setSkillsError(
-        "Please fill in all skill fields before adding a new one."
-      );
-      return;
-    }
-
     setSkills([...skills, ""]);
-    setSkillsError("");
   };
 
   const removeSkill = (index) => {
     const newSkills = skills.filter((_, i) => i !== index);
     setSkills(newSkills);
   };
+
   const handleExperienceSave = async () => {
-    const updatedExperiences = [...userData.experiences];
+    let updatedExperiences = [...(userData.experiences || [])];
     if (newExperience) {
       updatedExperiences.push(editExperienceValue);
     } else {
@@ -209,30 +160,33 @@ export default function EditableProfile({ userData, setUserData }) {
     }
     const updatedData = { ...userData, experiences: updatedExperiences };
     try {
-      const res = await userAxiosInstance.put(userProfileApi, updatedData);
-      console.log(res.data);
+      const res = await userAxiosInstance.post(userProfileApi, updatedData);
       if (res.data) {
+        dispatch(setUser(res.data));
         setUserData(res.data);
         closeExperienceModal();
       }
     } catch (error) {
-      console.error(error, "error in save experience");
+      console.error("Error updating experience:", error);
     }
   };
+
   const handleDeleteExperience = async (index) => {
     const updatedExperiences = userData.experiences.filter(
       (_, i) => i !== index
     );
     const updatedData = { ...userData, experiences: updatedExperiences };
     try {
-      const res = await userAxiosInstance.put(userProfileApi, updatedData);
+      const res = await userAxiosInstance.post(userProfileApi, updatedData);
       if (res.data) {
+        dispatch(setUser(res.data));
         setUserData(res.data);
       }
     } catch (error) {
-      console.error(error, "error in delete experience");
+      console.error("Error deleting experience:", error);
     }
   };
+
   const openExperienceModal = (index = null) => {
     if (index !== null) {
       setEditExperienceIndex(index);
@@ -256,6 +210,7 @@ export default function EditableProfile({ userData, setUserData }) {
     setEditExperienceValue({});
     setNewExperience(false);
   };
+
   const durationOptions = [
     { label: "1 year", value: "1 year" },
     { label: "2 years", value: "2 years" },
@@ -269,17 +224,21 @@ export default function EditableProfile({ userData, setUserData }) {
     setImage(croppedImageUrl);
   };
 
-  // if (!image.trim()) {
-  //   setErrorWithTimeout(setImageError, "Please add an image");
-  //   isValid = false;
-  // } else {
-  //   setImageError("");
-  // }
+  useEffect(() => {
+    if (userData?.hourlyRate) {
+      const parsedRate = parseFloat(userData.hourlyRate);
+      setRate(parsedRate);
+      const calculatedServiceFee = parsedRate * 0.1;
+      setServiceFee(calculatedServiceFee.toFixed(2));
+      const calculatedProfit = parsedRate - calculatedServiceFee;
+      setProfit(calculatedProfit.toFixed(2));
+    }
+  }, [userData]);
 
   return (
     <>
-      <div className="flex justify-between w-full mb-5">
-        <div className="flex  items-start w-full">
+      <div className="flex justify-between w-full mb-5 text-left">
+        <div className="flex items-start w-full">
           <ImageUploaderWithCrop
             user={userData}
             onImageCropped={handleImageCropped}
@@ -319,7 +278,7 @@ export default function EditableProfile({ userData, setUserData }) {
 
         <div className="flex justify-end w-full">
           <div className="relative group mt-5">
-            <h2 className="font-semibold text-md text-gray-700 cursor-pointer pr-6">
+            <h2 className="font-semibold text-md text-gray-700 cursor-pointer pr-6 relative group">
               {userData?.email || ""}
               <FaEdit
                 onClick={() => openModal("email")}
@@ -344,11 +303,10 @@ export default function EditableProfile({ userData, setUserData }) {
         </div>
       </div>
 
-      <hr className="mb-1 border-gray-300  shadow-md" />
+      <hr className="mb-1 border-gray-300 shadow-md" />
       <hr className="mb-8 border-gray-300" />
 
-
-      <div className="flex  relative group">
+      <div className="flex relative group text-left">
         <div className="pr-6 flex items-center">
           <span className="text-xl">{userData?.overview || ""}</span>
           <FaEdit
@@ -357,11 +315,11 @@ export default function EditableProfile({ userData, setUserData }) {
           />
         </div>
       </div>
-      <div className="px-5 pt-5 mb-[-0.5rem] mt-4 text-2xl font-bold text-teal-700 underline">
+      <div className="px-5 pt-5 mb-[-0.5rem] mt-4 text-2xl font-bold text-teal-700 underline text-left">
         Work fee or Hourly rate
       </div>
-      <div className="flex flex-col md:flex-row">
-        <div className="w-full md:w-full p-5">
+      <div className="flex flex-col md:flex-row text-left">
+        <div className="w-full p-5">
           <div className="space-y-4">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
@@ -369,12 +327,12 @@ export default function EditableProfile({ userData, setUserData }) {
                   <tr>
                     <td className="text-xl py-4">
                       Hourly rate <br />
-                      <span className="text-sm mt-2 block">
+                      <span className="text-sm mt-2 block text-gray-500">
                         Total amount the client will see.
                       </span>
                     </td>
                     <td className="text-right py-4">
-                      <div className="relative">
+                      <div className="relative inline-block">
                         <input
                           type="text"
                           value={`₹ ${rate}`}
@@ -392,7 +350,7 @@ export default function EditableProfile({ userData, setUserData }) {
                   <tr>
                     <td className="text-xl py-4">
                       Service fee <br />
-                      <span className="text-sm mt-2 block">
+                      <span className="text-sm mt-2 block text-gray-500">
                         This helps us run the platform and provide services like
                         payment protection and customer support.
                       </span>
@@ -403,14 +361,14 @@ export default function EditableProfile({ userData, setUserData }) {
                         value={`₹ ${serviceFee}`}
                         placeholder="₹ 0:00 / hr"
                         readOnly
-                        className="border rounded p-2 text-right"
+                        className="border rounded p-2 text-right bg-gray-50"
                       />
                     </td>
                   </tr>
                   <tr>
                     <td className="text-xl py-4">
                       You'll get <br />
-                      <span className="text-sm mt-2 block">
+                      <span className="text-sm mt-2 block text-gray-500">
                         The estimated amount you'll receive after service fees
                       </span>
                     </td>
@@ -420,7 +378,7 @@ export default function EditableProfile({ userData, setUserData }) {
                         value={`₹ ${profit}`}
                         placeholder="₹ 0:00 / hr"
                         readOnly
-                        className="border rounded p-2 text-right"
+                        className="border rounded p-2 text-right bg-gray-50"
                       />
                     </td>
                   </tr>
@@ -430,14 +388,14 @@ export default function EditableProfile({ userData, setUserData }) {
           </div>
         </div>
       </div>
-      <div className="px-5 pb-5 mt-4 text-2xl font-bold text-teal-700 underline flex items-center">
+      <div className="px-5 pb-5 mt-4 text-2xl font-bold text-teal-700 underline flex items-center text-left">
         Skills
         <FaEdit
           onClick={openSkillsModal}
           className="text-teal-700 cursor-pointer text-xl ml-4"
         />
       </div>
-      <div className="flex flex-wrap mx-5">
+      <div className="flex flex-wrap mx-5 text-left">
         {userData?.skills?.map((skill, index) => (
           <span
             key={index}
@@ -447,27 +405,27 @@ export default function EditableProfile({ userData, setUserData }) {
           </span>
         ))}
       </div>
-      <div className="px-5 pb-5 mt-4 text-2xl font-bold text-teal-700 underline">
+      <div className="px-5 pb-5 mt-4 text-2xl font-bold text-teal-700 underline text-left">
         Experience
       </div>
-      <div className="flex justify-end mx-5">
+      <div className="flex justify-end mx-5 text-left">
         <button
           onClick={() => openExperienceModal()}
-          className="flex items-center px-4 py-2 mb-4 text-sm font-medium text-white bg-teal-600 rounded-md shadow hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500"
+          className="flex items-center px-4 py-2 mb-4 text-sm font-medium text-white bg-teal-600 rounded-md shadow hover:bg-teal-700 focus:outline-none cursor-pointer"
         >
           <FaPlus className="mr-2" /> Add Experience
         </button>
       </div>
-      <div className="flex flex-wrap mx-5">
+      <div className="flex flex-wrap mx-5 text-left w-full">
         {userData?.experiences?.map((experience, index) => (
           <div
             key={index}
-            className="w-full p-4 mb-4 bg-gray-100 rounded-md relative group"
+            className="w-full p-4 mb-4 bg-gray-100 rounded-md relative group text-left"
           >
             <h3 className="text-xl font-semibold text-teal-800">
               {experience.jobTitle}
             </h3>
-            <p className="text-sm text-teal-700">
+            <p className="text-sm text-teal-700 mt-1">
               <strong>Company:</strong> {experience.company}
             </p>
             <p className="text-sm text-teal-700">
@@ -489,163 +447,221 @@ export default function EditableProfile({ userData, setUserData }) {
           </div>
         ))}
       </div>
-      <Modal isOpen={isExperienceModalOpen} onClose={closeExperienceModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>
-            {newExperience ? "Add Experience" : "Edit Experience"}
-          </ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl>
-              <FormLabel>Job Title</FormLabel>
-              <Input
-                value={editExperienceValue.jobTitle}
-                onChange={(e) =>
-                  setEditExperienceValue({
-                    ...editExperienceValue,
-                    jobTitle: e.target.value,
-                  })
-                }
-              />
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Company</FormLabel>
-              <Input
-                value={editExperienceValue.company}
-                onChange={(e) =>
-                  setEditExperienceValue({
-                    ...editExperienceValue,
-                    company: e.target.value,
-                  })
-                }
-              />
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Duration</FormLabel>
-              <Select
-                value={editExperienceValue.duration}
-                placeholder="Select duration"
-                onChange={(e) =>
-                  setEditExperienceValue({
-                    ...editExperienceValue,
-                    duration: e.target.value,
-                  })
-                }
+
+      {/* Experience Modal */}
+      {isExperienceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden border border-gray-200 text-left">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">
+                {newExperience ? "Add Experience" : "Edit Experience"}
+              </h3>
+              <button
+                onClick={closeExperienceModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
               >
-                {durationOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
+                &times;
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Job Title</label>
+                <input
+                  type="text"
+                  value={editExperienceValue.jobTitle || ""}
+                  onChange={(e) =>
+                    setEditExperienceValue({
+                      ...editExperienceValue,
+                      jobTitle: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Company</label>
+                <input
+                  type="text"
+                  value={editExperienceValue.company || ""}
+                  onChange={(e) =>
+                    setEditExperienceValue({
+                      ...editExperienceValue,
+                      company: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Duration</label>
+                <select
+                  value={editExperienceValue.duration || ""}
+                  onChange={(e) =>
+                    setEditExperienceValue({
+                      ...editExperienceValue,
+                      duration: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none bg-white"
+                >
+                  <option value="">Select duration</option>
+                  {durationOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Overview</label>
+                <textarea
+                  value={editExperienceValue.overview || ""}
+                  onChange={(e) =>
+                    setEditExperienceValue({
+                      ...editExperienceValue,
+                      overview: e.target.value,
+                    })
+                  }
+                  className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none h-24"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={handleExperienceSave}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+              >
+                Save
+              </button>
+              <button
+                onClick={closeExperienceModal}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Skills Modal */}
+      {isSkillsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200 text-left">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">Edit Skills</h3>
+              <button
+                onClick={closeSkillsModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Skills</label>
+                {skills.map((skill, index) => (
+                  <div key={index} className="flex items-center mb-2 gap-2">
+                    <input
+                      type="text"
+                      value={skill}
+                      onChange={(e) => handleSkillChange(index, e)}
+                      placeholder={`Skill ${index + 1}`}
+                      className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none"
+                    />
+                    <FaTrash
+                      onClick={() => removeSkill(index)}
+                      className="text-red-500 cursor-pointer hover:text-red-700 flex-shrink-0"
+                    />
+                  </div>
                 ))}
-              </Select>
-            </FormControl>
-            <FormControl mt={4}>
-              <FormLabel>Overview</FormLabel>
-              <Textarea
-                value={editExperienceValue.overview}
-                onChange={(e) =>
-                  setEditExperienceValue({
-                    ...editExperienceValue,
-                    overview: e.target.value,
-                  })
-                }
-              />
-            </FormControl>
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleExperienceSave}>
-              Save
-            </Button>
-            <Button variant="ghost" onClick={closeExperienceModal}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={isSkillsModalOpen} onClose={closeSkillsModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Skills</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl>
-              <FormLabel>Skills</FormLabel>
-              {skills.map((skill, index) => (
-                <div key={index} className="flex items-center mb-2">
-                  <Input
-                    value={skill}
-                    onChange={(e) => handleSkillChange(index, e)}
-                    placeholder={`Skill ${index + 1}`}
-                    className="mr-2"
-                  />
-                  <FaTrash
-                    onClick={() => removeSkill(index)}
-                    className="text-red-500 cursor-pointer"
-                  />
-                </div>
-              ))}
-              <Button
-                colorScheme="teal"
-                size="sm"
-                onClick={addSkill}
-                leftIcon={<FaPlus />}
+                <button
+                  onClick={addSkill}
+                  className="mt-2 flex items-center gap-2 px-3 py-1.5 border border-teal-600 text-teal-600 rounded text-sm font-semibold hover:bg-teal-50 transition-colors cursor-pointer"
+                >
+                  <FaPlus className="text-xs" />
+                  <span>Add Skill</span>
+                </button>
+              </div>
+              {skillsError && <p className="text-red-500 text-sm mt-2">{skillsError}</p>}
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={handleSkillsSave}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
               >
-                Add Skill
-              </Button>
-            </FormControl>
-            {skillsError && <p className="text-red-500 mt-2">{skillsError}</p>}
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSkillsSave}>
-              Save
-            </Button>
-            <Button variant="ghost" onClick={closeSkillsModal}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={isModalOpen} onClose={closeModal}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit {editField}</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <FormControl>
-              <FormLabel>{editField}</FormLabel>
-              {editField === "overview" ? (
-                <Textarea
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                />
-              ) : editField === "dateOfBirth" ? (
-                <Input
-                  type="date"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                />
-              ) : (
-                <Input
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                />
+                Save
+              </button>
+              <button
+                onClick={closeSkillsModal}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Field Edit Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200 text-left">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">Edit {editField}</h3>
+              <button
+                onClick={closeModal}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">{editField}</label>
+                {editField === "overview" ? (
+                  <textarea
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none h-32"
+                  />
+                ) : editField === "dateOfBirth" ? (
+                  <input
+                    type="date"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none"
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="w-full border border-gray-300 rounded p-2 focus:ring-1 focus:ring-teal-500 outline-none"
+                  />
+                )}
+              </div>
+              {errorMessage && (
+                <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
               )}
-            </FormControl>
-            {errorMessage && (
-              <p className="text-red-500 text-sm mt-2">{errorMessage}</p>
-            )}
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleSave}>
-              Save
-            </Button>
-            <Button variant="ghost" onClick={closeModal}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+              >
+                Save
+              </button>
+              <button
+                onClick={closeModal}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

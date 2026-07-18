@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { FaBriefcase, FaFileAlt, FaUserCheck, FaSearch } from "react-icons/fa";
-import { Divider, Tooltip, Input } from "@chakra-ui/react";
 import { MdCurrencyRupee } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { Link, useParams } from "react-router-dom";
@@ -17,20 +16,11 @@ import {
   declineJobProposalsApi,
   createChatsApi,
 } from "../../utils/api/api";
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-} from "@chakra-ui/react";
 const Tabs = () => {
   const navigate = useNavigate();
-  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isOpen, setIsOpen] = useState(false);
+  const onOpen = () => setIsOpen(true);
+  const onClose = () => setIsOpen(false);
   const [activeTab, setActiveTab] = useState("ViewJob");
   const [activeminTab, setActiveminTab] = useState("All Proposals");
   const { id } = useParams();
@@ -259,13 +249,11 @@ const Tabs = () => {
         </div>
         {activeTab === "ViewJob" && (
           <div className="mt-4 pt-10 pr-32">
-            <Tooltip label="Edit" placement="bottom">
-              <Link to={`/client/jobForm/${action}/${job._id}`}>
-                <span>
-                  <CiEdit className="w-6 h-6 text-gray-500 cursor-pointer" />
-                </span>
-              </Link>
-            </Tooltip>
+            <Link to={`/client/jobForm/${action}/${job._id}`} title="Edit">
+              <span>
+                <CiEdit className="w-6 h-6 text-gray-500 cursor-pointer" />
+              </span>
+            </Link>
           </div>
         )}
       </div>
@@ -338,11 +326,11 @@ const Tabs = () => {
                       {job.createdAt ? timeAgo(job.createdAt) : ""}
                     </span>
                   </div>
-                  <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+                  <hr className="my-4 border-gray-300" />
                   <div className="flex m-5 ">
                     <p>{job?.description ? job.description : ""}</p>
                   </div>
-                  <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+                  <hr className="my-4 border-gray-300" />
                   <div className="m-5">
                     <div className="flex items-center">
                       <MdCurrencyRupee />
@@ -365,14 +353,14 @@ const Tabs = () => {
                       </span>
                     </div>
                   </div>
-                  <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+                  <hr className="my-4 border-gray-300" />
                   <div className="flex m-5 ">
                     Project type:
                     <span className="ml-2 font-bold text-gray-500">
                       {job?.projectTerm ? job.projectTerm : ""}
                     </span>
                   </div>
-                  <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+                  <hr className="my-4 border-gray-300" />
                   <div className="flex m-5">
                     <h2 className="font-sans font-semibold text-md mb-3 ">
                       Skills and Expertise
@@ -391,7 +379,7 @@ const Tabs = () => {
                         </span>
                       ))}
                   </div>
-                  <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+                  <hr className="my-4 border-gray-300" />
                   <div className="flex m-5">
                     Proposals:
                     <span className="ml-2">{job?.proposals?.length || 0}</span>
@@ -488,38 +476,33 @@ const Tabs = () => {
                                 </div>
 
                                 <div className="flex items-center justify-between text-gray-500">
-                                  <Tooltip
-                                    label="Archive without notifying talent"
-                                    placement="left"
-                                  >
                                     <span
-                                      className="mr-3"
+                                      className="mr-3 cursor-pointer"
+                                      title="Archive without notifying talent"
                                       onClick={() =>
                                         handleArchive(proposal._id)
                                       }
                                     >
                                       {proposal?.status === "archived" ? (
-                                        <BiSolidDislike className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                        <BiSolidDislike className="w-6 h-6 text-gray-500" />
                                       ) : (
-                                        <BiDislike className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                        <BiDislike className="w-6 h-6 text-gray-500" />
                                       )}
                                     </span>
-                                  </Tooltip>
 
-                                  <Tooltip label="ShortList" placement="bottom">
                                     <span
-                                      className="mr-5"
+                                      className="mr-5 cursor-pointer"
+                                      title="ShortList"
                                       onClick={() =>
                                         handleShortlist(proposal._id)
                                       }
                                     >
                                       {proposal?.status === "shortList" ? (
-                                        <BiSolidLike className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                        <BiSolidLike className="w-6 h-6 text-gray-500" />
                                       ) : (
-                                        <BiLike className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                        <BiLike className="w-6 h-6 text-gray-500" />
                                       )}
                                     </span>
-                                  </Tooltip>
                                   <button
                                     className="mr-3 border-2 rounded-md p-1 border-teal-600 hover:bg-teal-600 hover:text-white focus:outline-none"
                                     onClick={() => handleOpenModal(proposal?.freelancerId)}
@@ -625,25 +608,16 @@ const Tabs = () => {
                                   </h2>
                                 </div>
                                 <div className="flex items-center justify-between text-gray-500">
-                                  <Tooltip
-                                    label="Archive without notifying talent"
-                                    placement="left"
-                                  >
-                                    <span className="mr-3">
-                                      <BiDislike className="w-6 h-6 text-gray-500 cursor-pointer" />
+                                    <span className="mr-3 cursor-pointer" title="Archive without notifying talent">
+                                      <BiDislike className="w-6 h-6 text-gray-500" />
                                     </span>
-                                  </Tooltip>
-                                  <Tooltip
-                                    label="UnshortList"
-                                    placement="bottom"
-                                  >
                                     <span
-                                      className="mr-5"
+                                      className="mr-5 cursor-pointer"
+                                      title="UnshortList"
                                       onClick={() => handleUnShortlist(job._id)}
                                     >
-                                      <BiSolidLike className="w-6 h-6 text-teal-500 cursor-pointer" />
+                                      <BiSolidLike className="w-6 h-6 text-teal-500" />
                                     </span>
-                                  </Tooltip>
                                   <button
                                     className="mr-3 border-2 rounded-md p-1 border-teal-600 hover:bg-teal-600 hover:text-white focus:outline-none"
                                     onClick={() => handleOpenModal(job?.freelancerId)}
@@ -840,24 +814,38 @@ const Tabs = () => {
           </div>
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Start Conversation</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            Do you want to start a conversation with {selectedUser?.name}?
-          </ModalBody>
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleStartConversation}>
-              Yes
-            </Button>
-            <Button variant="ghost" onClick={onClose}>
-              No
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md overflow-hidden border border-gray-200">
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-200">
+              <h3 className="text-xl font-semibold text-gray-800">Start Conversation</h3>
+              <button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 text-2xl font-bold cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="p-6 text-left text-gray-700">
+              Do you want to start a conversation with {selectedUser?.name}?
+            </div>
+            <div className="flex justify-end gap-2 px-6 py-4 bg-gray-50 border-t border-gray-200">
+              <button
+                onClick={handleStartConversation}
+                className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+              >
+                Yes
+              </button>
+              <button
+                onClick={onClose}
+                className="px-4 py-2 border border-gray-300 text-gray-700 rounded font-semibold hover:bg-gray-100 transition-colors cursor-pointer"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

@@ -1,13 +1,4 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Flex,
-  Text,
-  IconButton,
-  Tooltip,
-  Skeleton,
-  Icon,
-} from "@chakra-ui/react";
 import { HiOutlineThumbDown, HiThumbDown } from "react-icons/hi";
 import { IoBookmark, IoBookmarkOutline } from "react-icons/io5";
 import Rating from "./Rating";
@@ -48,22 +39,21 @@ const JobCards = ({
     return () => clearTimeout(timer);
   }, []);
 
-  useEffect(()=>{
-    const fetchUser = async()=>{
-      const res = await userAxiosInstance.get(userProfileApi)
-      if(res.data){
-        dispatch(setUser(res.data))
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await userAxiosInstance.get(userProfileApi);
+      if (res.data) {
+        dispatch(setUser(res.data));
       }
-    }
-    fetchUser()
-  },[])
+    };
+    fetchUser();
+  }, []);
 
   const handleSaveJob = async (jobId) => {
     try {
       const res = await userAxiosInstance.post(saveJobApi, { jobId });
       if (res.data) {
         dispatch(setUser(res.data));
-        const savedJobIds = getSavedJobIds();
         setSavedJobs((prevSavedJobs) => [
           ...prevSavedJobs,
           jobs.find((job) => job._id === jobId),
@@ -79,7 +69,6 @@ const JobCards = ({
       const res = await userAxiosInstance.post(unsaveJobApi, { jobId });
       if (res.data) {
         dispatch(setUser(res.data));
-        const savedJobIds = getSavedJobIds();
         setSavedJobs((prevSavedJobs) =>
           prevSavedJobs.filter((job) => job._id !== jobId)
         );
@@ -87,10 +76,6 @@ const JobCards = ({
     } catch (error) {
       console.error("Error unsaving job:", error);
     }
-  };
-
-  const getSavedJobIds = () => {
-    return user.savedJobs.map((job) => job.job);
   };
 
   const handleDislikeJob = async (jobId) => {
@@ -131,150 +116,114 @@ const JobCards = ({
       const isDislike = DislikedJobs.includes(job._id);
       const isApplied = appliedJobIds.includes(job._id);
       return (
-        <Box
-          bg="white"
-          boxShadow="md"
-          borderRadius="xl"
-          p={8}
-          m={4}
-          ml={12}
-          width={{ base: "90%", md: "80%" }}
+        <div
+          className="bg-white shadow-md rounded-xl p-8 m-4 ml-12 w-[90%] md:w-[80%] text-left"
           key={index}
         >
           {isLoading ? (
-            <Skeleton height="20px" mb="4" />
+            <div className="animate-pulse bg-gray-200 rounded h-4 w-1/4 mb-4" />
           ) : (
-            <Text fontSize="xs" color="gray.500">
+            <p className="text-xs text-gray-500">
               Posted: {format(job.createdAt)}
-            </Text>
+            </p>
           )}
 
-          <Flex justifyContent="flex-end" alignItems="center">
+          <div className="flex justify-end items-center">
             {!isApplied && !isSaved && (
-              <Tooltip label={isDislike ? "Interested" : "Not Interested"}>
-                <IconButton
-                  icon={isDislike ? <HiThumbDown /> : <HiOutlineThumbDown />}
-                  color="teal.700"
-                  fontSize="2xl"
-                  cursor="pointer"
-                  mr={4}
-                  aria-label="Not Interested"
-                  variant="ghost"
-                  onClick={() =>
-                    isDislike
-                      ? handleLikeJob(job._id)
-                      : handleDislikeJob(job._id)
-                  }
-                />
-              </Tooltip>
+              <button
+                type="button"
+                title={isDislike ? "Interested" : "Not Interested"}
+                className="p-2 text-teal-700 hover:bg-black/5 rounded-full transition-colors cursor-pointer mr-4"
+                onClick={() =>
+                  isDislike
+                    ? handleLikeJob(job._id)
+                    : handleDislikeJob(job._id)
+                }
+              >
+                {isDislike ? <HiThumbDown className="text-2xl" /> : <HiOutlineThumbDown className="text-2xl" />}
+              </button>
             )}
 
             {isApplied && (
-              <Tooltip label="Applied">
-                <Box display="flex" alignItems="center" cursor="default" mr={8}>
-                  <Icon
-                    as={AiOutlineCheckCircle}
-                    color="green.500"
-                    fontSize="2xl"
-                  />
-                  <Text ml={2} fontSize="lg" color="green.500">
-                    Applied
-                  </Text>
-                </Box>
-              </Tooltip>
+              <div className="flex items-center cursor-default mr-8" title="Applied">
+                <AiOutlineCheckCircle className="text-green-500 text-2xl" />
+                <span className="ml-2 text-lg text-green-500 font-semibold">
+                  Applied
+                </span>
+              </div>
             )}
 
             {!isNotInterested.includes(job._id) && (
-              <Tooltip label={isSaved ? "Unsave Job" : "Save Job"}>
-                <IconButton
-                  icon={isSaved ? <IoBookmark /> : <IoBookmarkOutline />}
-                  color="teal.700"
-                  fontSize="2xl"
-                  cursor="pointer"
-                  mr={8}
-                  aria-label={isSaved ? "Unsave Job" : "Save Job"}
-                  variant="ghost"
-                  onClick={() =>
-                    isSaved ? handleUnSaveJob(job._id) : handleSaveJob(job._id)
-                  }
-                />
-              </Tooltip>
+              <button
+                type="button"
+                title={isSaved ? "Unsave Job" : "Save Job"}
+                className="p-2 text-teal-700 hover:bg-black/5 rounded-full transition-colors cursor-pointer mr-8"
+                onClick={() =>
+                  isSaved ? handleUnSaveJob(job._id) : handleSaveJob(job._id)
+                }
+              >
+                {isSaved ? <IoBookmark className="text-2xl" /> : <IoBookmarkOutline className="text-2xl" />}
+              </button>
             )}
-          </Flex>
+          </div>
 
           {!isNotInterested.includes(job._id) ? (
             <>
-              <Flex justifyContent="start" alignItems="center" mt={-3}>
+              <div className="flex justify-start items-center mt-[-12px]">
                 {isLoading ? (
-                  <Skeleton height="24px" width="50%" />
+                  <div className="animate-pulse bg-gray-200 rounded h-6 w-1/2" />
                 ) : (
-                  <Text
-                    fontSize="xl"
-                    fontWeight="bold"
-                    cursor="pointer"
-                    color="teal"
+                  <p
+                    className="text-xl font-bold cursor-pointer text-teal-600 hover:underline"
                     onClick={() => navigate(`/user/JobProfile/${job._id}`)}
                   >
                     {job.jobRole}
-                  </Text>
+                  </p>
                 )}
-              </Flex>
+              </div>
 
-              <Flex justifyContent="start" alignItems="center" mt={3} mb={8}>
+              <div className="flex justify-start items-center mt-3 mb-8">
                 {isLoading ? (
-                  <Skeleton height="16px" width="20%" />
+                  <div className="animate-pulse bg-gray-200 rounded h-4 w-1/4" />
                 ) : (
                   <div>
-                    <Text fontSize="xs" color="gray.500">
+                    <p className="text-xs text-gray-500">
                       {job.projectTerm} -{" "}
                       {job.budgetType === "fixed"
                         ? `${job.budgetType} Price - ₹${job.budget}`
                         : `${job.budgetType} rate - ₹${job.wageRangeMin} to ₹${job.wageRangeMax}`}
-                    </Text>
+                    </p>
                     {job.budgetType === "hourly" && (
-                      <Text fontSize="xs" color="gray.500" mt={1}>
+                      <p className="text-xs text-gray-500 mt-1">
                         Estimated Time: {job.selecthour} hrs
-                      </Text>
+                      </p>
                     )}
                   </div>
                 )}
-              </Flex>
+              </div>
 
               {isLoading ? (
-                <Skeleton height="120px" />
+                <div className="animate-pulse bg-gray-200 rounded h-24 w-full" />
               ) : (
-                <Text fontSize="md" mb={4}>
+                <p className="text-md mb-4 text-gray-700">
                   {job.description}
-                </Text>
+                </p>
               )}
 
-              <Flex
-                justifyContent="flex-start"
-                alignItems="center"
-                mt={2}
-                flexWrap="wrap"
-              >
+              <div className="flex justify-start items-center mt-2 flex-wrap">
                 {job.skills.map((skill, index) => (
-                  <Box
+                  <div
                     key={index}
-                    display="flex"
-                    alignItems="center"
-                    border="1px solid gray.400"
-                    boxShadow="sm"
-                    bg="gray.200"
-                    borderRadius="md"
-                    m={2}
-                    px={4}
-                    py={2}
+                    className="flex items-center border border-gray-300 shadow-sm bg-gray-100 rounded-md m-2 px-4 py-1.5 text-sm font-medium"
                   >
                     {isLoading ? (
-                      <Skeleton height="16px" width="40px" />
+                      <div className="animate-pulse bg-gray-300 rounded h-4 w-10" />
                     ) : (
                       skill
                     )}
-                  </Box>
+                  </div>
                 ))}
-              </Flex>
+              </div>
 
               {!isLoading && (
                 <Rating
@@ -284,33 +233,28 @@ const JobCards = ({
                 />
               )}
 
-              <Flex justifyContent="flex-start" alignItems="center" mt={3}>
+              <div className="flex justify-start items-center mt-3">
                 {isLoading ? (
-                  <Skeleton height="16px" width="20%" />
+                  <div className="animate-pulse bg-gray-200 rounded h-4 w-16" />
                 ) : (
-                  <Text fontSize="xs" color="gray.500">
+                  <p className="text-xs text-gray-500">
                     Proposals: {job?.proposals.length}
-                  </Text>
+                  </p>
                 )}
-              </Flex>
+              </div>
             </>
           ) : (
-            <Flex justifyContent="start" alignItems="center" mt={-3}>
+            <div className="flex justify-start items-center mt-[-12px]">
               {isLoading ? (
-                <Skeleton height="24px" width="50%" />
+                <div className="animate-pulse bg-gray-200 rounded h-6 w-1/2" />
               ) : (
-                <Text
-                  fontSize="xl"
-                  fontWeight="bold"
-                  cursor="pointer"
-                  color="teal"
-                >
+                <p className="text-xl font-bold cursor-pointer text-teal-600">
                   {job.jobRole}
-                </Text>
+                </p>
               )}
-            </Flex>
+            </div>
           )}
-        </Box>
+        </div>
       );
     });
   };
@@ -318,82 +262,28 @@ const JobCards = ({
   return (
     <>
       {activeHeading === "Best Matches" && jobs.length === 0 && (
-        <Box
-          bg="white"
-          boxShadow="md"
-          borderRadius="xl"
-          minH={"50vh"}
-          alignContent="center"
-          p={8}
-          m={4}
-          ml={12}
-          width={{ base: "90%", md: "80%" }}
-        >
-          <Flex
-            justifyContent="center"
-            alignItems="center"
-            mt={2}
-            flexWrap="wrap"
-            fontFamily={"semi-bold"}
-            fontSize={"2xl"}
-            minH="100%"
-          >
+        <div className="bg-white shadow-md rounded-xl min-h-[50vh] flex items-center justify-center p-8 m-4 ml-12 w-[90%] md:w-[80%]">
+          <div className="text-center font-semibold text-2xl text-gray-600">
             You don't have any jobs that match your skills.
-          </Flex>
-        </Box>
+          </div>
+        </div>
       )}
 
       {activeHeading === "Most Recent" && jobs.length === 0 && (
-        <Box
-          bg="white"
-          boxShadow="md"
-          borderRadius="xl"
-          minH={"50vh"}
-          alignContent="center"
-          p={8}
-          m={4}
-          ml={12}
-          width={{ base: "90%", md: "80%" }}
-        >
-          <Flex
-            justifyContent="center"
-            alignItems="center"
-            mt={2}
-            flexWrap="wrap"
-            fontFamily={"semi-bold"}
-            fontSize={"2xl"}
-            minH="100%"
-          >
+        <div className="bg-white shadow-md rounded-xl min-h-[50vh] flex items-center justify-center p-8 m-4 ml-12 w-[90%] md:w-[80%]">
+          <div className="text-center font-semibold text-2xl text-gray-600">
             You don't have any recent jobs to list.
-          </Flex>
-        </Box>
+          </div>
+        </div>
       )}
 
       {activeHeading === "Saved Jobs" && savedJobs.length === 0 && (
-        <Box
-          bg="white"
-          boxShadow="md"
-          borderRadius="xl"
-          minH={"50vh"}
-          alignContent="center"
-          p={8}
-          m={4}
-          ml={12}
-          width={{ base: "90%", md: "80%" }}
-        >
-          <Flex
-            justifyContent="center"
-            alignItems="center"
-            mt={2}
-            flexWrap="wrap"
-            fontFamily={"semi-bold"}
-            fontSize={"2xl"}
-            minH="100%"
-          >
+        <div className="bg-white shadow-md rounded-xl min-h-[50vh] flex items-center justify-center p-8 m-4 ml-12 w-[90%] md:w-[80%]">
+          <div className="text-center font-semibold text-2xl text-gray-600">
             Keep track of jobs you're interested in. Click the icon on a job
             post to save it for later.
-          </Flex>
-        </Box>
+          </div>
+        </div>
       )}
 
       {activeHeading === "Best Matches" && renderJobs(jobs)}

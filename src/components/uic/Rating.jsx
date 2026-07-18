@@ -1,5 +1,6 @@
 import React from "react";
 import { HiLocationMarker } from "react-icons/hi";
+import { StarIcon, EmptyStarIcon } from "./Icons";
 
 const Rating = ({ layout, reviews , place }) => {
   const averageRating =
@@ -9,18 +10,15 @@ const Rating = ({ layout, reviews , place }) => {
     const maxStars = 5;
     const stars = [];
     for (let i = 1; i <= maxStars; i++) {
-      stars.push(
-        <svg
-          key={i}
-          className={`w-6 h-6 ${
-            i <= rating ? "text-yellow-500" : "text-gray-300"
-          }`}
-          fill="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path d="M12 17.27L18.18 21 16.54 14.83 22 9.24 15.81 8.63 12 2 8.19 8.63 2 9.24 7.46 14.83 5.82 21 12 17.27Z" />
-        </svg>
-      );
+      if (i <= rating) {
+        stars.push(
+          <StarIcon key={i} className="w-6 h-6 text-yellow-500" />
+        );
+      } else {
+        stars.push(
+          <EmptyStarIcon key={i} className="w-6 h-6 text-gray-300" />
+        );
+      }
     }
     return stars;
   };

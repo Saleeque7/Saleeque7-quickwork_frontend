@@ -1,5 +1,4 @@
 
-import { Divider,Tooltip, Button } from "@chakra-ui/react";
 import { MdCurrencyRupee, MdVerified, MdSaveAlt } from "react-icons/md";
 import { useNavigate, useParams } from "react-router-dom";
 import Rating from "../../components/uic/Rating";
@@ -140,11 +139,11 @@ useEffect(()=>{
                   {jobs?.createdAt ? timeAgo(jobs.createdAt) : ""}
                 </span>
               </div>
-              <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+              <hr className="my-4 border-gray-200" />
               <div className="flex m-5">
                 <p>{jobs?.description ? jobs.description : ""}</p>
               </div>
-              <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+              <hr className="my-4 border-gray-200" />
               <div className="m-5">
                 <div className="flex items-center">
                   <MdCurrencyRupee />
@@ -167,14 +166,14 @@ useEffect(()=>{
                   </span>
                 </div>
               </div>
-              <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+              <hr className="my-4 border-gray-200" />
               <div className="flex m-5">
                 Project type:
                 <span className="ml-2 font-bold text-gray-500">
                   {jobs?.projectTerm ? jobs.projectTerm : ""}
                 </span>
               </div>
-              <Divider width={"auto"} color={"gray.500"} opacity={1}></Divider>
+              <hr className="my-4 border-gray-200" />
               <div className="flex m-5">
                 <h2 className="font-sans font-semibold text-md mb-3">
                   Skills and Expertise
@@ -193,7 +192,7 @@ useEffect(()=>{
                     </span>
                   ))}
               </div>
-              <Divider p={2} color={"gray.500"} opacity={1}></Divider>
+              <hr className="my-4 border-gray-200" />
               <div className="flex m-5">
                 Proposals:
                 <span className="ml-2">
@@ -203,25 +202,19 @@ useEffect(()=>{
             </section>
           </div>
 
-          <Divider
-            orientation="vertical"
-            height="auto"
-            borderColor="gray.300"
-            opacity={1}
-          />
+          <div className="hidden md:block w-[1px] bg-gray-300 self-stretch mx-4" />
           <div className="w-1/3 p-20">
             <div className="pb-10">
               <div className="flex justify-center">
                {appliedJobIds.includes(jobs._id) ? 
               
                 (
-                  <Tooltip label="Job is already applied" aria-label="Job is already applied" placement="top">
                   <button
-                    className="w-80 mr-10 my-3 border-1 border-green-500 px-16 py-2 items-center rounded-xl font-semibold bg-green-600 text-white"
+                    title="Job is already applied"
+                    className="w-80 mr-10 my-3 border border-green-500 px-16 py-2 items-center rounded-xl font-semibold bg-green-600 text-white cursor-not-allowed opacity-80"
                   >
                     Applied
                   </button>
-                </Tooltip>
                 )
                 :
                 ( <button

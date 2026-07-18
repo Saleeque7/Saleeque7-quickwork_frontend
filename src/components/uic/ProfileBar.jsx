@@ -1,13 +1,4 @@
 import React from "react";
-import {
-  Box,
-  Flex,
-  Image,
-  Text,
-  Stack,
-  IconButton,
-  Link,
-} from "@chakra-ui/react";
 import { FaGithub, FaLinkedin } from "react-icons/fa";
 import profileImage from "../../assets/pf.png";
 
@@ -15,60 +6,53 @@ export default function ProfileBar({ user }) {
   const profile = user?.profile?.location || profileImage;
 
   return (
-    <Box
-      width="260px"
-      borderRadius="2xl"
-      overflow="hidden"
-      boxShadow="xl"
-      mt={24}
-    >
-      <Box bg="teal.500" h="100px" position="relative">
-        <Image
+    <div className="w-[260px] rounded-2xl overflow-hidden shadow-xl mt-24">
+      <div className="bg-teal-500 h-[100px] relative">
+        <img
           src={profile}
           alt="Profile Image"
-          boxSize="100px"
-          borderRadius="full"
-          border="5px solid white"
-          position="absolute"
-          top="100%"
-          left="50%"
-          transform="translate(-50%, -50%)"
+          className="w-[100px] h-[100px] rounded-full border-4 border-white absolute top-full left-1/2 transform -translate-x-1/2 -translate-y-1/2 object-cover"
         />
-      </Box>
-      <Box bg="white" pt="60px" pb={4}>
-        <Stack spacing={2} align="center">
-          <Text fontWeight="bold" fontSize="xl" color="gray.700">
+      </div>
+      <div className="bg-white pt-[60px] pb-4">
+        <div className="flex flex-col gap-2 items-center text-center">
+          <div className="font-bold text-xl text-gray-700">
             {user && (
-              <Link href={'/user/viewprofile'} color="blue.500" sx={{ textDecoration: 'none', _hover: { textDecoration: 'none' } }}>
+              <a
+                href="/user/viewprofile"
+                className="text-gray-700 hover:text-teal-600 transition-colors"
+              >
                 {user.name}
-              </Link>
+              </a>
             )}
-          </Text>
-          <Text color="gray.500">{user && user.jobTitle}</Text>
-          <Flex justify="center" mt={2}>
-            <Link href={user?.github} isExternal>
-              <IconButton
-                icon={<FaGithub />}
-                variant="ghost"
-                color="gray.700"
-                fontSize="20px"
-                _hover={{ color: "blue.500" }}
+          </div>
+          <p className="text-gray-500 text-sm">{user && user.jobTitle}</p>
+          <div className="flex justify-center gap-4 mt-2">
+            {user?.github && (
+              <a
+                href={user.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-700 hover:text-teal-600 hover:bg-black/5 rounded-full transition-colors"
                 aria-label="Github"
-              />
-            </Link>
-            <Link href={user?.linkedin} isExternal>
-              <IconButton
-                icon={<FaLinkedin />}
-                variant="ghost"
-                color="gray.700"
-                fontSize="20px"
-                _hover={{ color: "blue.500" }}
+              >
+                <FaGithub className="text-xl" />
+              </a>
+            )}
+            {user?.linkedin && (
+              <a
+                href={user.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-700 hover:text-teal-600 hover:bg-black/5 rounded-full transition-colors"
                 aria-label="LinkedIn"
-              />
-            </Link>
-          </Flex>
-        </Stack>
-      </Box>
-    </Box>
+              >
+                <FaLinkedin className="text-xl" />
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

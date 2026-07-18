@@ -1,20 +1,21 @@
-import { Image, Text, Flex } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
 export default function Logo({ userInfo }) {
   return (
-    <Flex alignItems={"flex-start"} direction={"column"} pb={5}>
+    <div className="flex items-center">
       {userInfo?.job_role === "freelancer" ? (
         <Link to={'/user/home'}>
-          <Image src="/images/logo.png" fit="contain" mb="-20px" />
+          <img src="/images/logo.png" className="h-8 w-auto object-contain" alt="Logo" />
         </Link>
       ) : userInfo?.job_role === "client" ? (
         <Link to={'/user/client'}>
-          <Image src="/images/logo.png" fit="contain" mb="-20px" />
+          <img src="/images/logo.png" className="h-8 w-auto object-contain" alt="Logo" />
         </Link>
       ) : (
-        <Image src="/images/logo.png" fit="contain" mb="-20px" />
+        <Link to={'/'}>
+          <img src="/images/logo.png" className="h-8 w-auto object-contain" alt="Logo" />
+        </Link>
       )}
-    </Flex>
+    </div>
   );
 }

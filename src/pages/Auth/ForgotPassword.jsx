@@ -1,20 +1,3 @@
-import {
-  Box,
-  Flex,
-  Container,
-  Stack,
-  Heading,
-  Text,
-  FormControl,
-  FormLabel,
-  Input,
-  Button,
-  Image,
-  FormErrorMessage,
-  HStack,
-  PinInput,
-  PinInputField,
-} from "@chakra-ui/react";
 import Logo from "../../components/uic/Logo";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -26,17 +9,16 @@ import { AuthAxios } from "../../utils/api/baseUrl";
 import { useNavigate } from "react-router-dom";
 
 export default function ForgotPassword() {
-  
-  const [email, setEmail] = useState();
-  const [password, setPassword] = useState();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [emailError, setError] = useState("");
   const [otpError, setOtpError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [showNewPasswordInput, setShowNewPasswordInput] = useState(false);
   const [showOtpInput, setShowOtpInput] = useState(false);
-  const [otp, setOtp] = useState();
+  const [otp, setOtp] = useState("");
   const [timer, setTimer] = useState(30);
-  const [resotp, setResotp] = useState();
+  const [resotp, setResotp] = useState("");
   const [otpExpired, setOtpExpired] = useState(false);
   const navigate = useNavigate();
 
@@ -108,6 +90,7 @@ export default function ForgotPassword() {
       }
     }
   };
+
   const handleResend = async () => {
     try {
       const res = await AuthAxios.post("/resend-otp", { email });
@@ -219,104 +202,88 @@ export default function ForgotPassword() {
       }
     }
   };
+
   return (
-    <Box
-      minH="100vh"
-      bgGradient={[
-        "linear(to-tr, teal.300, yellow.400)",
-        "linear(to-t, blue.200, teal.500)",
-        "linear(to-b, orange.100, teal.300)",
-      ]}
+    <div
+      className="min-h-screen p-4"
+      style={{
+        background: "linear-gradient(to right, #81e6d9, #fef08a, #fda4af)",
+      }}
     >
-      <Flex position="sticky" top="0" zIndex="sticky">
-        <Link to={"/"}>
+      <div className="sticky top-0 z-50 flex">
+        <Link to="/">
           <Logo />
         </Link>
-      </Flex>
-      <Container
-        maxW="lg"
-        py={{ base: "8", md: "20" }}
-        px={{ base: "0", sm: "8" }}
-      >
-        <Stack spacing="7">
-          <Stack spacing="5" mt={"-16"}>
-            <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-              <Heading size={{ base: "xs", md: "xl" }} color={"teal.600"}>
-                Update your password
-              </Heading>
-              <Text color="grey">
-                Don't have an account?{" "}
-                <Link
-                  to={"/pre"}
-                  style={{ textDecoration: "none", color: "teal" }}
-                >
-                  Sign up
-                </Link>
-              </Text>
-            </Stack>
-          </Stack>
-          <Box
-            py={{ base: "0", sm: "8" }}
-            px={{ base: "4", sm: "10" }}
-            bg="white"
-            boxShadow="md"
-            borderRadius="xl"
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Stack alignItems="center" mb={8}>
-              <Image src={emailLogo} boxSize="100px" />
+      </div>
+      <div className="max-w-lg mx-auto py-8 md:py-20 px-4 sm:px-8">
+        <div className="flex flex-col gap-6">
+          <div className="space-y-5 -mt-16 text-center">
+            <h1 className="text-3xl md:text-4xl font-bold text-teal-600">
+              Update your password
+            </h1>
+            <p className="text-gray-500">
+              Don't have an account?{" "}
+              <Link to="/pre" className="text-teal-600 hover:underline">
+                Sign up
+              </Link>
+            </p>
+          </div>
+
+          <div className="py-8 px-4 sm:px-10 bg-white shadow-md rounded-2xl border border-gray-200">
+            <div className="flex flex-col items-center mb-8 text-center">
+              <img src={emailLogo} className="w-[100px] h-[100px] object-contain mb-4" alt="Email logo" />
               {!showNewPasswordInput && !showOtpInput && (
-                <Text mt={2} color={"gray"}>
-                  Enter your <strong>EMAIL ADDRESS</strong> and select Send
-                  Email{" "}
-                </Text>
+                <p className="text-sm text-gray-500">
+                  Enter your <strong>EMAIL ADDRESS</strong> and select Send Email
+                </p>
               )}
 
-              {showOtpInput &&
-                !showNewPasswordInput &&
-                (!otpExpired ? (
+              {showOtpInput && !showNewPasswordInput && (
+                !otpExpired ? (
                   <>
-                    <Text mt={2} color="gray">
+                    <p className="text-sm text-gray-500">
                       Enter the <strong>OTP</strong> sent to your email
-                      <br />
-                    </Text>
-                    <Text mt={2} color={timer < 10 ? "red.500" : "gray"}>
-                      <strong>0:{timer.toString().padStart(2, "0")}</strong>
-                    </Text>
+                    </p>
+                    <p className={`text-sm mt-2 font-bold ${timer < 10 ? "text-red-500" : "text-gray-500"}`}>
+                      0:{timer.toString().padStart(2, "0")}
+                    </p>
                   </>
                 ) : (
-                  <Text mt={2} color="gray">
+                  <p className="text-sm text-red-500 font-bold">
                     OTP expired, please resend OTP
-                  </Text>
-                ))}
+                  </p>
+                )
+              )}
 
               {showNewPasswordInput && (
-                <Text mt={2} color={"gray"}>
-                  Enter your <strong>NEW PASSWORD</strong> and Submit{" "}
-                </Text>
+                <p className="text-sm text-gray-500">
+                  Enter your <strong>NEW PASSWORD</strong> and Submit
+                </p>
               )}
-            </Stack>
+            </div>
 
-            <Stack spacing="6">
-              <Stack spacing="5">
+            <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-4">
                 {!showOtpInput && (
-                  <FormControl isInvalid={emailError}>
-                    <FormLabel>Email</FormLabel>
-                    <Input
+                  <div className="flex flex-col gap-1 w-full">
+                    <label className="text-sm font-semibold text-gray-700">Email</label>
+                    <input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
                       value={email}
-                      borderColor={emailError ? "red.500" : undefined}
-                      focusBorderColor={emailError ? "red.500" : undefined}
                       onChange={(e) => setEmail(e.target.value)}
-                      isDisabled={showNewPasswordInput}
+                      disabled={showNewPasswordInput}
+                      className={`w-full p-2 border rounded outline-none transition-colors ${
+                        emailError
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:border-teal-500"
+                      }`}
                     />
                     {emailError && (
-                      <FormErrorMessage>{emailError}</FormErrorMessage>
+                      <p className="text-red-500 text-xs mt-1">{emailError}</p>
                     )}
-                  </FormControl>
+                  </div>
                 )}
                 {showNewPasswordInput && (
                   <PasswordField
@@ -325,84 +292,66 @@ export default function ForgotPassword() {
                     passwordError={passwordError}
                   />
                 )}
-              </Stack>
+              </div>
 
               {showOtpInput && !showNewPasswordInput && (
-                <Stack spacing="5">
-                  <FormControl isInvalid={otpError} isDisabled={otpExpired}>
-                    <FormLabel textAlign="center" pb={4}>
-                      {otpExpired ? "" : "Enter OTP"}
-                    </FormLabel>
-                    <Flex justifyContent="center">
-                      <HStack spacing={6} mb={4}>
-                        <PinInput
-                          value={otp}
-                          onChange={setOtp}
-                          isDisabled={otpExpired}
-                          color
-                        >
-                          <PinInputField
-                            borderColor={otpError ? "red.300" : "gray.200"}
-                          />
-                          <PinInputField
-                            borderColor={otpError ? "red.300" : "gray.200"}
-                          />
-                          <PinInputField
-                            borderColor={otpError ? "red.300" : "gray.200"}
-                          />
-                          <PinInputField
-                            borderColor={otpError ? "red.300" : "gray.200"}
-                          />
-                        </PinInput>
-                      </HStack>
-                    </Flex>
-                    {otpError && (
-                      <FormErrorMessage justifyContent="center">
-                        {otpError}
-                      </FormErrorMessage>
-                    )}
-                  </FormControl>
-                </Stack>
+                <div className="flex flex-col gap-1 w-full text-center">
+                  <label className="text-sm font-semibold text-gray-700 pb-2">
+                    {otpExpired ? "" : "Enter OTP"}
+                  </label>
+                  <div className="flex justify-center">
+                    <input
+                      type="text"
+                      maxLength={4}
+                      value={otp}
+                      disabled={otpExpired}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                      placeholder="0000"
+                      className={`w-40 text-center tracking-[1rem] pl-[1rem] p-2 border rounded text-2xl font-bold outline-none transition-colors ${
+                        otpError
+                          ? "border-red-500 focus:border-red-500"
+                          : "border-gray-300 focus:border-teal-500"
+                      }`}
+                    />
+                  </div>
+                  {otpError && (
+                    <p className="text-red-500 text-xs mt-1">{otpError}</p>
+                  )}
+                </div>
               )}
 
-              <Stack spacing="6">
+              <div className="flex flex-col gap-4">
                 {!showOtpInput && !showNewPasswordInput && (
-                  <Button
-                    bg="teal.500"
-                    color="white"
-                    _hover={{ bg: "blue.800" }}
+                  <button
                     onClick={handleSendEmail}
+                    className="w-full py-2 bg-teal-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors cursor-pointer"
                   >
                     Send Email
-                  </Button>
+                  </button>
                 )}
 
                 {showOtpInput && !showNewPasswordInput && (
-                  <Button
-                    bg="teal.500"
-                    color="white"
-                    _hover={{ bg: "blue.800" }}
+                  <button
                     onClick={otpExpired ? handleResend : handleVerifyOtp}
+                    className="w-full py-2 bg-teal-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors cursor-pointer"
                   >
                     {otpExpired ? "Resend OTP" : "Verify OTP"}
-                  </Button>
+                  </button>
                 )}
 
                 {showNewPasswordInput && (
-                  <Button
-                    bg="teal.500"
-                    color="white"
-                    _hover={{ bg: "blue.800" }}
+                  <button
                     onClick={handleResetPassword}
+                    className="w-full py-2 bg-teal-600 text-white font-semibold rounded hover:bg-blue-800 transition-colors cursor-pointer"
                   >
                     Submit
-                  </Button>
+                  </button>
                 )}
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Container>
-    </Box>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

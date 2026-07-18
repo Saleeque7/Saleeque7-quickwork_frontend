@@ -1,5 +1,4 @@
 import { MdCurrencyRupee } from "react-icons/md";
-import { Divider } from "@chakra-ui/react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { userAxiosInstance } from "../../utils/api/privateAxios";
@@ -190,12 +189,12 @@ export default function JobApply() {
                   {job?.createdAt ? timeAgo(job.createdAt) : ""}
                 </span>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <p>{job?.description || ""}</p>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <h2 className="font-sans font-semibold text-md mb-3">
@@ -214,9 +213,8 @@ export default function JobApply() {
               </div>
             </section>
           </div>
-          <div className="w-1/12">
-            <Divider
-              orientation="vertical"
+          <div className="w-1/12 flex justify-center">
+            <div
               className="h-full bg-gray-200"
               style={{ width: "2px" }}
             />

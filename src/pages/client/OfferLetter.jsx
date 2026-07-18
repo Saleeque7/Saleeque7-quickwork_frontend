@@ -1,10 +1,8 @@
 import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Divider, StepSeparator } from "@chakra-ui/react";
 import { MdCurrencyRupee } from "react-icons/md";
 import { useState, useEffect, useRef } from "react";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { Tooltip, Box, Text } from "@chakra-ui/react";
 import { FaTrashCan } from "react-icons/fa6";
 import { browseOfferletter, createContractApi } from "../../utils/api/api";
 import { clientAxiosInstance } from "../../utils/api/privateAxios";
@@ -276,38 +274,20 @@ export default function OfferLetter() {
               <div className="m-5">
                 <div className="flex items-center text-teal-700 text-xl">
                   <span className="font-semibold">Payment option</span>
-                  <Tooltip
-                    label={
-                      <Box width="250px">
-                        <Text fontWeight="semibold" fontSize="lg" mb="2">
-                          When will I be charged?
-                        </Text>
-                        <Text fontSize="md">
-                          Over the course of the contract, your talent will
-                          submit milestones for review and the funds in QW
-                          Wallet will be released upon your approval. Failing to
-                          respond to a milestone submission within 14 days is
-                          deemed approval and the QW Wallet funds will be
-                          automatically released to your talent.
-                        </Text>
-                      </Box>
-                    }
-                    placement="top"
-                    hasArrow
-                    bg="gray.100"
-                    color="teal"
-                    p="2"
-                    borderRadius="md"
-                    fontSize="md"
-                    sx={{ boxShadow: "md" }}
-                  >
-                    <span className="text-2xl">
-                      <RxQuestionMarkCircled
-                        className="ml-2"
-                        color="teal.900"
-                      />
-                    </span>
-                  </Tooltip>
+                  <div className="relative group flex items-center">
+                    <RxQuestionMarkCircled className="ml-2 text-2xl text-teal-900 cursor-pointer" />
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-[250px] p-4 bg-white border border-gray-200 rounded-xl shadow-xl hidden group-hover:block z-10 text-left">
+                      <p className="font-semibold text-lg text-teal-950 mb-2">When will I be charged?</p>
+                      <p className="text-sm text-gray-600 leading-relaxed font-normal">
+                        Over the course of the contract, your talent will
+                        submit milestones for review and the funds in QW
+                        Wallet will be released upon your approval. Failing to
+                        respond to a milestone submission within 14 days is
+                        deemed approval and the QW Wallet funds will be
+                        automatically released to your talent.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="m-5">
@@ -331,7 +311,7 @@ export default function OfferLetter() {
                   </span>
                 </div>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               {jobinfo?.budgetType === "fixed" ? (
                 <div>
                   <div className="m-5">
@@ -518,7 +498,7 @@ export default function OfferLetter() {
                   </div>
                 </div>
               )}
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <h2 className="font-sans font-semibold  mb-3 text-teal-700 text-xl">
@@ -593,13 +573,7 @@ export default function OfferLetter() {
               </div>
             </section>
           </div>
-          <div className="">
-            <Divider
-              orientation="vertical"
-              className="h-full bg-gray-200"
-              style={{ width: "2px" }}
-            />
-          </div>
+          <div className="hidden md:block w-[2px] bg-gray-200 self-stretch mx-4" />
 
           <div className="w-4/12 mx-5">
             <div className="mx-4">

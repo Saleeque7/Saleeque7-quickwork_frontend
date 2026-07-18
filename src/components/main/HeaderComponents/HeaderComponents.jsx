@@ -1,99 +1,62 @@
-import {
-  Box,
-  Text,
-  Stack,
-  Popover,
-  PopoverTrigger,
-  useColorModeValue,
-} from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
 import { useUserProfile } from "../../../utils/context/ProfileContext";
 
 const DesktopNav = ({ userInfo }) => {
-  const {userProfile }  = useUserProfile()
-  const isUserProfile = userInfo.isUserProfile;
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkHoverColor = useColorModeValue("gray.800", "white");
+  const { userProfile } = useUserProfile();
+  const isUserProfile = userInfo?.isUserProfile;
   const navigate = useNavigate();
 
-  const NAV_ITEMS =  [
-        { label: "Find Work", href: "/user/findWork" },
-        { label: "My Work", href: "/user/workList" },
-        { label: "Message", href: "/user/messages" },
-        // { label: "Auction", href: "/userWatchlist" },
-      ]  
+  const NAV_ITEMS = [
+    { label: "Find Work", href: "/user/findWork" },
+    { label: "My Work", href: "/user/workList" },
+    { label: "Message", href: "/user/messages" },
+  ];
+
   return (
-    isUserProfile  && (
-    <Stack direction="row" spacing={4}>
-      {NAV_ITEMS.map((navItem) => (
-        <Box key={navItem.label}>
-          <Popover trigger="hover" placement="bottom-start">
-            <PopoverTrigger>
-              <Box
-                as="button"
-                p={2}
-                onClick={() => navigate(navItem.href)}
-                fontSize="sm"
-                fontWeight={500}
-                color={linkColor}
-                _hover={{
-                  textDecoration: "none",
-                  color: linkHoverColor,
-                }}
-              >
-                {navItem.label}
-              </Box>
-            </PopoverTrigger>
-          </Popover>
-        </Box>
-      ))}
-    </Stack>
-  )
-);
+    isUserProfile && (
+      <div className="flex flex-row gap-4">
+        {NAV_ITEMS.map((navItem) => (
+          <div key={navItem.label}>
+            <button
+              onClick={() => navigate(navItem.href)}
+              className="p-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-white transition-colors"
+            >
+              {navItem.label}
+            </button>
+          </div>
+        ))}
+      </div>
+    )
+  );
 };
+
 const DesktopNavClient = ({ userInfo }) => {
-  const { clientProfile}  = useUserProfile()
- 
-  const linkColor = useColorModeValue("gray.600", "gray.200");
-  const linkHoverColor = useColorModeValue("gray.800", "white");
+  const { clientProfile } = useUserProfile();
   const navigate = useNavigate();
 
-  const NAV_ITEMS =  [
-        { label: "Find Talent", href: "/client/UserList" },
-        { label: "My Jobs", href: "/client/joblisted" },
-        { label: "Message", href: "/client/messages" },
-        { label: "Bills", href: "/client/Bills" },
-      ];
-    
+  const NAV_ITEMS = [
+    { label: "Find Talent", href: "/client/UserList" },
+    { label: "My Jobs", href: "/client/joblisted" },
+    { label: "Message", href: "/client/messages" },
+    { label: "Bills", href: "/client/Bills" },
+  ];
+
   return (
-    clientProfile  && (
-    <Stack direction="row" spacing={4}>
-      {NAV_ITEMS.map((navItem) => (
-        <Box key={navItem.label}>
-          <Popover trigger="hover" placement="bottom-start">
-            <PopoverTrigger>
-              <Box
-                as="button"
-                p={2}
-                onClick={() => navigate(navItem.href)}
-                fontSize="sm"
-                fontWeight={500}
-                color={linkColor}
-                _hover={{
-                  textDecoration: "none",
-                  color: linkHoverColor,
-                }}
-              >
-                {navItem.label}
-              </Box>
-            </PopoverTrigger>
-          </Popover>
-        </Box>
-      ))}
-    </Stack>
-  )
-);
+    clientProfile && (
+      <div className="flex flex-row gap-4">
+        {NAV_ITEMS.map((navItem) => (
+          <div key={navItem.label}>
+            <button
+              onClick={() => navigate(navItem.href)}
+              className="p-2 text-sm font-medium text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-white transition-colors"
+            >
+              {navItem.label}
+            </button>
+          </div>
+        ))}
+      </div>
+    )
+  );
 };
 
 const MobileNav = ({ handleLogout, user, handleLogin, userInfo }) => {
@@ -112,62 +75,44 @@ const MobileNav = ({ handleLogout, user, handleLogin, userInfo }) => {
       ];
 
   return (
-    <Stack
-      bg={useColorModeValue("white", "gray.800")}
-      p={4}
-      display={{ md: "none" }}
-    >
+    <div className="flex flex-col gap-4 p-4 bg-white dark:bg-gray-800 md:hidden border-t border-gray-100">
       {userInfo &&
         NAV_ITEMS.map((navItem) => (
           <MobileNavItem key={navItem.label} {...navItem} />
         ))}
-      <Stack spacing={4}>
+      <div className="flex flex-col gap-4">
         {user ? (
-          <Box
-            py={2}
-            as="button"
+          <button
             onClick={handleLogout}
-            justifyContent="space-between"
-            alignItems="center"
-            _hover={{ textDecoration: "none" }}
+            className="w-full text-left py-2 font-semibold text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-white"
           >
-            <Text fontWeight={600}>Logout</Text>
-          </Box>
+            Logout
+          </button>
         ) : (
-          <Box
-            py={2}
-            as="button"
+          <button
             onClick={handleLogin}
-            justifyContent="space-between"
-            alignItems="center"
-            _hover={{ textDecoration: "none" }}
+            className="w-full text-left py-2 font-semibold text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-white"
           >
-            <Text fontWeight={600}>Login</Text>
-          </Box>
+            Login
+          </button>
         )}
-      </Stack>
-    </Stack>
+      </div>
+    </div>
   );
 };
 
 const MobileNavItem = ({ label, href }) => {
   const navigate = useNavigate();
   return (
-    <Stack spacing={4}>
-      <Box
-        py={2}
-        as="button"
+    <div className="flex flex-col gap-4">
+      <button
         onClick={() => navigate(href)}
-        justifyContent="space-between"
-        alignItems="center"
-        _hover={{ textDecoration: "none" }}
+        className="w-full text-left py-2 font-semibold text-gray-600 hover:text-gray-800 dark:text-gray-200 dark:hover:text-white"
       >
-        <Text fontWeight={600} color={useColorModeValue("gray.600", "gray.200")}>
-          {label}
-        </Text>
-      </Box>
-    </Stack>
+        {label}
+      </button>
+    </div>
   );
 };
 
-export { DesktopNav, MobileNav ,DesktopNavClient};
+export { DesktopNav, MobileNav, DesktopNavClient };

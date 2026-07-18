@@ -1,20 +1,3 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Container,
-  Divider,
-  FormControl,
-  FormLabel,
-  Heading,
-  HStack,
-  Input,
-  Stack,
-  Text,
-  Flex,
-  useRadio,
-  useDisclosure,
-} from "@chakra-ui/react";
 import Logo from "../../components/uic/Logo";
 import { Link } from "react-router-dom";
 import { AuthButtonGroup } from "../../components/uic/AuthButtons";
@@ -114,108 +97,87 @@ const Login = () => {
       setLoading(false);
     }
   };
+
   const handleForgotPasswordClick = () => {
     setPasswordPage(true);
     navigate("/forgotpassword");
   };
 
   return (
-    <Box
-      minH="100vh"
-      bgGradient={[
-        "linear(to-tr, teal.300, yellow.400)",
-        "linear(to-t, blue.200, teal.500)",
-        "linear(to-b, orange.100, teal.300)",
-      ]}
-    >
-      <Flex position="sticky" top="0" zIndex="sticky">
-        <Link to={"/"}>
+    <div className="min-h-screen bg-zinc-50 p-6 flex flex-col justify-between">
+      <div className="max-w-7xl mx-auto w-full flex items-center justify-between py-2 border-b border-gray-150">
+        <Link to="/">
           <Logo />
         </Link>
-      </Flex>
-      <Container
-        maxW="lg"
-        py={{ base: "8", md: "20" }}
-        px={{ base: "0", sm: "8" }}
-      >
-        <Stack spacing="7">
-          <Stack spacing="5" mt={"-16"}>
-            <Stack spacing={{ base: "2", md: "3" }} textAlign="center">
-              <Heading size={{ base: "xs", md: "xl" }} color={"teal.600"}>
-                Log in to Quick Work
-              </Heading>
-              <Text color="grey">
-                Don't have an account?{" "}
-                <Link
-                  to={"/pre"}
-                  style={{ textDecoration: "none", color: "teal" }}
-                >
-                  Sign up
-                </Link>
-              </Text>
-            </Stack>
-          </Stack>
-          <Box
-            py={{ base: "0", sm: "8" }}
-            px={{ base: "4", sm: "10" }}
-            bg="white"
-            boxShadow="md"
-            borderRadius="xl"
-            border="1px solid"
-            borderColor="gray.200"
-          >
-            <Stack spacing="6">
-              <Stack spacing="5">
-                <FormControl>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                  />
-                </FormControl>
-                <PasswordField
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </Stack>
-              <HStack justify="end">
-                <Button
-                  variant="text"
-                  size="sm"
-                  onClick={handleForgotPasswordClick}
-                >
-                  forgot password?
-                </Button>
-              </HStack>
-              <Stack spacing="6">
-                <Button
-                  bg={"blue.500"}
-                  color={"white"}
-                  _hover={{ bg: "blue.800" }}
-                  onClick={handleLogin}
-                  isLoading={loading}
-                  disabled={loading}
-                >
-                  Sign in
-                </Button>
-                <HStack>
-                  <Divider />
-                  <Text textStyle="sm" whiteSpace="nowrap" color="fg.muted">
-                    or continue with
-                  </Text>
-                  <Divider />
-                </HStack>
-                <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
-                  <AuthButtonGroup layout="login" />
-                </GoogleOAuthProvider>
-              </Stack>
-            </Stack>
-          </Box>
-        </Stack>
-      </Container>
-    </Box>
+      </div>
+
+      <div className="max-w-md mx-auto w-full py-12 px-4 sm:px-6">
+        <div className="flex flex-col gap-8 bg-white border border-gray-200/80 shadow-xl rounded-[32px] p-8 sm:p-10">
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-gray-900 tracking-tight mb-2">
+              Log in to QuickWork
+            </h1>
+            <p className="text-sm text-gray-500 font-medium">
+              Don't have an account?{" "}
+              <Link to="/pre" className="text-green-600 hover:text-green-700 font-bold hover:underline transition-colors">
+                Sign up
+              </Link>
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-5">
+            <div className="flex flex-col gap-1.5 text-left">
+              <label className="text-sm font-semibold text-gray-700">Email address</label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-1 focus:ring-green-600 focus:border-green-600 outline-none transition-all text-sm font-medium"
+                placeholder="Enter your email"
+              />
+            </div>
+            <PasswordField
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+
+            <div className="flex justify-end">
+              <button
+                onClick={handleForgotPasswordClick}
+                className="text-xs text-green-600 hover:text-green-700 transition-colors font-bold cursor-pointer"
+              >
+                Forgot password?
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-4 mt-2">
+              <button
+                onClick={handleLogin}
+                disabled={loading}
+                className="w-full py-3 bg-green-600 text-white font-bold rounded-full hover:bg-green-700 disabled:opacity-50 transition-colors cursor-pointer text-sm shadow-sm hover:shadow"
+              >
+                {loading ? "Signing in..." : "Log in"}
+              </button>
+              
+              <div className="flex items-center gap-4 my-2">
+                <hr className="flex-1 border-gray-200" />
+                <span className="text-xs text-gray-400 font-bold uppercase tracking-wider whitespace-nowrap">or</span>
+                <hr className="flex-1 border-gray-200" />
+              </div>
+
+              <GoogleOAuthProvider clientId={config.GOOGLE_CLIENT_ID}>
+                <AuthButtonGroup layout="login" />
+              </GoogleOAuthProvider>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="text-center py-4 border-t border-gray-200/50 mt-10">
+        <p className="text-xs text-gray-400">© 2026 QUICKWORK Inc. All rights reserved.</p>
+      </div>
+    </div>
   );
 };
 

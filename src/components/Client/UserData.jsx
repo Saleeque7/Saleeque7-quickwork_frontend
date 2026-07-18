@@ -1,5 +1,7 @@
 import { differenceInYears } from "date-fns";
 import Rating from "../uic/Rating";
+import { StarIcon, EmptyStarIcon } from "../uic/Icons";
+
 export default function UserData({ userData }) {
   const calculateAge = (birthDate) => {
     if (!birthDate) return null;
@@ -126,21 +128,14 @@ export default function UserData({ userData }) {
                   </h4>
                   <div className="flex items-center mt-2">
                     <div className="flex items-center text-yellow-500">
-                      {Array.from({ length: 5 }).map((_, starIndex) => (
-                        <svg
-                          key={starIndex}
-                          className={`w-5 h-5 ${
-                            starIndex < (item.rating || 0)
-                              ? "text-yellow-500"
-                              : "text-gray-300"
-                          }`}
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M12 2l2.45 4.95L20 8.9l-3.5 3.41L17 18l-5-2.5L7 18l1.5-5.69L5 8.9l5.55-.95L12 2z" />
-                        </svg>
-                      ))}
+                      {Array.from({ length: 5 }).map((_, starIndex) => {
+                        const isFilled = starIndex < (item.rating || 0);
+                        return isFilled ? (
+                          <StarIcon key={starIndex} className="w-5 h-5 text-yellow-500" />
+                        ) : (
+                          <EmptyStarIcon key={starIndex} className="w-5 h-5 text-gray-300" />
+                        );
+                      })}
                     </div>
                     <p className="text-sm text-gray-600 ml-2">
                       {item.rating || "No rating"}

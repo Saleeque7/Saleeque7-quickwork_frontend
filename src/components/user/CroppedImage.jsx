@@ -1,8 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import Cropper from 'react-easy-crop';
-import { Avatar, Box, FormControl, IconButton, Input, FormErrorMessage } from '@chakra-ui/react';
 import { FaCamera, FaCut } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
+
 const ImageUploaderWithCrop = ({ user, onImageCropped, imageError }) => {
   const currentUser = useSelector((state) => state.persisted.user.user);
 
@@ -93,57 +93,47 @@ const ImageUploaderWithCrop = ({ user, onImageCropped, imageError }) => {
   };
 
   return (
-    <Box w={{ base: "100%", md: "30%" }} p={5}>
-      <Box position="relative" display="inline-block">
-        <Avatar
-          size="2xl"
+    <div className="w-full md:w-[30%] p-5 flex flex-col items-center">
+      <div className="relative inline-block">
+        <img
           src={croppedImage || image || "https://via.placeholder.com/150"}
-          mb={4}
-          borderRadius="full"
           onClick={() => document.getElementById("image-upload").click()}
-          cursor="pointer"
+          className="w-32 h-32 rounded-full cursor-pointer mb-4 object-cover border border-gray-300"
+          alt="Avatar"
         />
-  { !image &&     <IconButton
-          icon={<FaCamera />}
-          position="absolute"
-          bottom={0}
-          right={0}
-          mb={2}
-          mr={2}
-          onClick={() => document.getElementById("image-upload").click()}
-          cursor="pointer"
-          size="sm"
-          isRound
-          aria-label="Upload Image"
-        />}
-        {croppedImage && (
-          <IconButton
-            icon={<FaCut />}
-            position="absolute"
-            bottom={0}
-            left={0}
-            mb={2}
-            ml={2}
-            onClick={handleReCrop}
-            cursor="pointer"
-            size="sm"
-            isRound
-            aria-label="Re-Crop Image"
-          />
+        {!image && (
+          <button
+            type="button"
+            onClick={() => document.getElementById("image-upload").click()}
+            className="absolute bottom-4 right-0 p-2 bg-teal-600 text-white rounded-full shadow hover:bg-teal-700 transition-colors cursor-pointer"
+            aria-label="Upload Image"
+          >
+            <FaCamera className="text-sm" />
+          </button>
         )}
-      </Box>
-      <FormControl isInvalid={!!error}>
-        <Input
+        {croppedImage && (
+          <button
+            type="button"
+            onClick={handleReCrop}
+            className="absolute bottom-4 left-0 p-2 bg-gray-600 text-white rounded-full shadow hover:bg-gray-700 transition-colors cursor-pointer"
+            aria-label="Re-Crop Image"
+          >
+            <FaCut className="text-sm" />
+          </button>
+        )}
+      </div>
+      <div className="w-full text-center">
+        <input
           type="file"
           id="image-upload"
           accept="image/*"
-          display="none"
+          className="hidden"
           onChange={handleImageChange}
         />
-        {error && <FormErrorMessage ml={16}>{error}</FormErrorMessage>}
-      </FormControl>
+        {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
+      </div>
       {isCropping && image && (
-        <Box position="relative" width="70%" height="200px">
+        <div className="relative w-full h-[200px] mt-4 border border-gray-200 rounded overflow-hidden">
           <Cropper
             image={image}
             crop={crop}
@@ -153,17 +143,17 @@ const ImageUploaderWithCrop = ({ user, onImageCropped, imageError }) => {
             onCropComplete={onCropComplete}
             onZoomChange={setZoom}
           />
-          <IconButton
-            icon={<FaCut />}
-            position="absolute"
-            bottom={2}
-            right={2}
+          <button
+            type="button"
             onClick={showCroppedImage}
+            className="absolute bottom-2 right-2 p-2 bg-teal-600 text-white rounded-full shadow hover:bg-teal-700 transition-colors cursor-pointer z-10"
             aria-label="Crop Image"
-          />
-        </Box>
+          >
+            <FaCut className="text-sm" />
+          </button>
+        </div>
       )}
-    </Box>
+    </div>
   );
 };
 

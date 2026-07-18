@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import { Divider } from "@chakra-ui/react";
 import { MdCurrencyRupee } from "react-icons/md";
 import { userAxiosInstance } from "../../utils/api/privateAxios";
 import {
@@ -352,12 +351,12 @@ export default function ContractInfo() {
                   {timeAgo(contract.createdAt) || ""}
                 </span>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <p>{contract?.jobId?.description || ""}</p>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <div className="flex items-center mb-2">
@@ -372,7 +371,7 @@ export default function ContractInfo() {
                   </span>
                 </div>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               <div className="m-5">
                 {contract?.paymentOption === "fullPay" ? (
                   <div>
@@ -428,7 +427,7 @@ export default function ContractInfo() {
                   </div>
                 )}
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               <div className="flex justify-between">
                 <div className="m-5">
                   <h2 className="font-sans font-semibold text-md mb-3">
@@ -461,7 +460,7 @@ export default function ContractInfo() {
                     </div>
                   )}
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               <div className="m-5">
                 {fileUrl && (
                   <>

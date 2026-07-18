@@ -1,21 +1,13 @@
-import {
-  Button,
-  ButtonGroup,
-  VisuallyHidden,
-  Text,
-  Box,
-  VStack,
-} from "@chakra-ui/react";
-import {InfoIcon} from '@chakra-ui/icons'
-import { GitHubIcon, GoogleIcon } from "./Authicons";
+import { MdInfo } from "react-icons/md";
+import { GitHubIcon, GoogleIcon } from "./Icons";
 import React from "react";
 import { AuthAxios } from "../../utils/api/baseUrl";
 import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { setClient,setClientAuth } from "../../utils/Redux/recruiterSlice";
-import { setUser ,setUserAuth } from "../../utils/Redux/userSlice";
+import { setClient, setClientAuth } from "../../utils/Redux/recruiterSlice";
+import { setUser, setUserAuth } from "../../utils/Redux/userSlice";
 import { useDispatch } from "react-redux";
 import { useEffect, useState } from "react";
 import { config } from "../../config/config";
@@ -34,9 +26,6 @@ export const AuthButtonGroup = ({ layout, userType }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
-
-
-
 
   const login = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -72,7 +61,6 @@ export const AuthButtonGroup = ({ layout, userType }) => {
           );
           console.error("Error data:", error.response.data);
           setErrorMessage(error.response.data.message);
-          
         } else if (error.request) {
           console.error("No response received from server:", error.request);
           toast.error("Network error. Please try again later.", {
@@ -93,27 +81,21 @@ export const AuthButtonGroup = ({ layout, userType }) => {
     },
   });
 
-
-
-
   const handleNavigation = (person, accessToken, refreshToken) => {
     if (person.job_role === "freelancer") {
       dispatch(setUser(person));
-      dispatch(setUserAuth())
-      localStorage.setItem("userrefreshToken",refreshToken)
-      localStorage.setItem("useraccessToken",accessToken)
+      dispatch(setUserAuth());
+      localStorage.setItem("userrefreshToken", refreshToken);
+      localStorage.setItem("useraccessToken", accessToken);
       navigate("/user/home", { replace: true });
     } else if (person.job_role === "client") {
       dispatch(setClient(person));
-      dispatch(setClientAuth())
-      localStorage.setItem("clientrefreshToken",refreshToken)
-      localStorage.setItem("clientaccessToken",accessToken)
-
+      dispatch(setClientAuth());
+      localStorage.setItem("clientrefreshToken", refreshToken);
+      localStorage.setItem("clientaccessToken", accessToken);
       navigate("/client/home", { replace: true });
     }
   };
-
-
 
   useEffect(() => {
     if (errorMessage) {
@@ -124,13 +106,10 @@ export const AuthButtonGroup = ({ layout, userType }) => {
     }
   }, [errorMessage]);
 
-
-
   useEffect(() => {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const code = urlParams.get("code");
-   
 
     if (code && !localStorage.getItem("gitaccessToken")) {
       const getAccessToken = async () => {
@@ -138,12 +117,11 @@ export const AuthButtonGroup = ({ layout, userType }) => {
           const response = await AuthAxios.get(
             `/gitAccessToken?code=${code}&layout=${layout}`
           );
-       
+
           if (response.data.token) {
             localStorage.setItem("gitaccessToken", response.data.token);
             const res = await githubAuth(layout, userType);
 
-        
             const person = res.data.user;
             if (res.data.success) {
               toast.success(res.data.message, {
@@ -165,8 +143,7 @@ export const AuthButtonGroup = ({ layout, userType }) => {
               error.response.status
             );
             console.error("Error data:", error.response.data);
-            setErrorMessage(error.response.data.message)
-            // window.history.replaceState({}, document.title, window.location.pathname);
+            setErrorMessage(error.response.data.message);
           } else if (error.request) {
             console.error("No response received from server:", error.request);
             toast.error("Network error. Please try again later.", {
@@ -191,12 +168,9 @@ export const AuthButtonGroup = ({ layout, userType }) => {
     }
   }, [userType, layout, handleNavigation]);
 
-
-
-
   const githubAuth = async (layout, userType) => {
     const apiEndpoint = layout === "login" ? "/githubLogin" : "/githubSignup";
-   
+
     if (layout === "login") {
       const res = await AuthAxios.get(apiEndpoint, {
         headers: {
@@ -217,8 +191,6 @@ export const AuthButtonGroup = ({ layout, userType }) => {
     }
   };
 
-
-
   const CLIENT_ID = config.GIT_HUB_CLIENT_ID;
   const registerWithGithub = () => {
     window.location.assign(
@@ -226,16 +198,12 @@ export const AuthButtonGroup = ({ layout, userType }) => {
     );
   };
 
-  
   const CLIENT_ID_LOG = config.GIT_HUB_CLIENT_ID_LOG;
   const logInWithGithub = () => {
     window.location.assign(
       `https://github.com/login/oauth/authorize?client_id=${CLIENT_ID_LOG}&scope=user:email`
     );
   };
-
-
-
 
   const handleGitHubButtonClick = () => {
     if (layout === "login") {
@@ -244,46 +212,37 @@ export const AuthButtonGroup = ({ layout, userType }) => {
       registerWithGithub();
     }
   };
-  return (
-    <VStack>
-      <ButtonGroup
-        variant="secondary"
-        justify={layout === "login" ? "end" : "between"}
-        mt={layout === "Signup" ? "3" : "5"}
-      >
-        <Button
-          key={"Google"}
-          flexGrow={1}
-          _hover={{ bg: "blue.100" }}
-          onClick={() => login()}
-        >
-          <GoogleIcon mr={2} />
-          {layout === "login" ? (
-            <Text fontSize={"sm"}>Sign in with Google</Text>
-          ) : (
-            <Text fontSize={"sm"}>Sign up with Google</Text>
-          )}
-        </Button>
-        <Button
-          key={"GitHub"}
-          flexGrow={1}
-          _hover={{ bg: "gray.300" }}
-          onClick={handleGitHubButtonClick}
-        >
-          <GitHubIcon mr={2} />
 
-          {layout === "login" ? (
-            <Text fontSize={"sm"}>Sign in with GitHub </Text>
-          ) : (
-            <Text fontSize={"sm"}>Sign up with GitHub </Text>
-          )}
-        </Button>
-      </ButtonGroup>
-      { errorMessage && (
-        <Box mt={2} textAlign={"center"} fontSize={"sm"}>
-          <Text fontWeight={"bold"} color="red.500"><InfoIcon mr={2} />{errorMessage}</Text>
-        </Box>
+  return (
+    <div className="flex flex-col w-full">
+      <div
+        className={`flex flex-col sm:flex-row gap-4 w-full ${
+          layout === "Signup" ? "mt-3" : "mt-5"
+        }`}
+      >
+        <button
+          onClick={() => login()}
+          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded hover:bg-blue-50 transition-colors text-sm font-medium cursor-pointer"
+        >
+          <GoogleIcon />
+          <span>{layout === "login" ? "Sign in with Google" : "Sign up with Google"}</span>
+        </button>
+        <button
+          onClick={handleGitHubButtonClick}
+          className="flex-1 flex items-center justify-center gap-2 py-2 px-4 border border-gray-300 rounded hover:bg-gray-100 transition-colors text-sm font-medium cursor-pointer"
+        >
+          <GitHubIcon />
+          <span>{layout === "login" ? "Sign in with GitHub" : "Sign up with GitHub"}</span>
+        </button>
+      </div>
+      {errorMessage && (
+        <div className="mt-2 text-center text-sm">
+          <p className="font-bold text-red-500 inline-flex items-center gap-2 justify-center">
+            <MdInfo className="text-lg" />
+            {errorMessage}
+          </p>
+        </div>
       )}
-    </VStack>
+    </div>
   );
 };

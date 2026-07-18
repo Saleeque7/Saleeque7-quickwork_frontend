@@ -1,9 +1,8 @@
-import { Box, Text, Flex, Divider } from "@chakra-ui/react";
+import React, { useState, useEffect } from "react";
 import Carousel from "../../components/uic/Carousel";
 import ProfileBar from "../../components/uic/ProfileBar";
 import JobCards from "../../components/uic/JobCards";
 import { useSelector } from "react-redux";
-import { useState, useEffect } from "react";
 import UserProfile from "../../components/user/UserProfile";
 import { useUserProfile } from "../../utils/context/ProfileContext";
 import { userAxiosInstance } from "../../utils/api/privateAxios";
@@ -63,126 +62,64 @@ export default function UserHome() {
 
   return (
     <>
-      <Box  minH="100vh">
+      <div className="min-h-screen text-left">
         {userProfile && (
-          <Box>
-            <Flex
-              justifyContent="space-between"
-              alignItems="center"
-              flexDirection={{ base: "column", md: "row" }}
-              bg="gray.100"
-            >
-              <Box
-                w={{ base: "100%", md: "75%" }}
-                mb={{ base: 8, md: 0 }}
-                alignItems="center"
-                p={8}
-                borderRadius="md"
-                textAlign="center"
-              >
-                <Box
-                  w={{ base: "100%" }}
-                  minH="20vh"
-                  mb={{ base: 8, md: 0 }}
-                  alignItems="center"
-                  justifySelf={"center"}
-                  borderRadius="md"
-                  textAlign="center"
-                >
-                  <Carousel />
-                </Box>
-              </Box>
-              <Box
-                w={{ base: "100%", md: "25%" }}
-                mb={{ base: 8, md: 0 }}
-                alignItems="center"
-                ml={12}
-                textAlign="center"
-              >
+          <div>
+            <div className="flex flex-col md:flex-row justify-between items-center bg-gray-100 p-6 md:p-12 gap-8">
+              <div className="w-full md:w-[75%] flex flex-col items-center justify-center p-8 rounded-md bg-white shadow-sm min-h-[20vh]">
+                <Carousel />
+              </div>
+              <div className="w-full md:w-[25%] flex flex-col items-center justify-center">
                 <ProfileBar user={user} />
-              </Box>
-            </Flex>
+              </div>
+            </div>
 
-            <Flex
-              justifyContent="flex-start"
-              alignItems="start"
-              flexDirection={{ base: "column", md: "row" }}
-              bg="gray.100"
-              p={5}
-            >
-              <Text
-                color="teal.500"
-                _hover={{ color: "green", cursor: "pointer" }}
-                ml={12}
-                fontSize={"2xl"}
-              >
+            <div className="flex flex-col md:flex-row justify-start items-start bg-gray-100 p-5">
+              <h2 className="text-2xl text-teal-600 hover:text-teal-700 cursor-pointer ml-12 font-bold transition-colors">
                 Jobs you might like
-              </Text>
-            </Flex>
+              </h2>
+            </div>
 
-            <Flex
-              justifyContent="flex-start"
-              alignItems="start"
-              flexDirection={{ base: "column", md: "row" }}
-              bg="gray.100"
-              p={5}
-            >
+            <div className="flex flex-col md:flex-row justify-start items-start bg-gray-100 p-5 gap-4">
               {["Best Matches", "Most Recent", "Saved Jobs"].map((heading) => (
-                <Text
+                <button
                   key={heading}
-                  fontSize="xl"
-                  fontWeight="bold"
-                  mr={4}
-                  mb={{ base: 4, md: 0 }}
-                  color={activeHeading === heading ? "green" : "dark"}
-                  ml={5}
-                  _hover={{ color: "teal.700", cursor: "pointer" }}
                   onClick={() => {
                     setActiveHeading(heading);
                     setCurrentPage(1);
                   }}
-                  pl={8}
+                  className={`text-xl font-bold cursor-pointer transition-colors pl-8 ${
+                    activeHeading === heading
+                      ? "text-teal-700 border-b-2 border-teal-700"
+                      : "text-gray-500 hover:text-teal-600"
+                  }`}
                 >
                   {heading}
-                </Text>
+                </button>
               ))}
-            </Flex>
+            </div>
 
-            <Flex
-              flexDirection={{ base: "column", md: "row" }}
-              bg="gray.100"
-              mt={-4}
-            >
-              <Box ml={16} w={{ base: "100%", md: "80%" }}>
-                <Divider borderColor={"gray"} />
-              </Box>
-            </Flex>
+            <div className="flex flex-col md:flex-row bg-gray-100 mt-[-16px]">
+              <div className="ml-16 w-full md:w-[80%]">
+                <hr className="border-gray-300 w-full" />
+              </div>
+            </div>
 
-            <Flex
-              flexDirection={{ base: "column", md: "row" }}
-              bg="gray.100"
-              fontSize={"xs"}
-              p={4}
-            >
-              <Text ml={16}>
+            <div className="flex flex-col md:flex-row bg-gray-100 text-xs p-4">
+              <p className="ml-16 text-gray-500 italic">
                 {activeHeading === "Best Matches"
                   ? `*Browse jobs that match your experience to a client's hiring preferences. Ordered by most relevant.`
                   : `*Browse the most recent jobs that match your skills and profile description to the skills clients are looking for.`}
-              </Text>
-            </Flex>
+              </p>
+            </div>
 
-            <Flex flexDirection={{ base: "column", md: "row" }} bg="gray.100">
-              <Box ml={16} w={{ base: "100%", md: "80%" }}>
-                <Divider borderColor={"gray"} />
-              </Box>
-            </Flex>
+            <div className="flex flex-col md:flex-row bg-gray-100">
+              <div className="ml-16 w-full md:w-[80%]">
+                <hr className="border-gray-300 w-full" />
+              </div>
+            </div>
 
-            <Flex
-              flexDirection={{ base: "column", md: "column" }}
-              bg="gray.100"
-              p={5}
-             
-            >
+            <div className="flex flex-col bg-gray-100 p-5">
               <JobCards
                 jobs={jobs}
                 activeHeading={activeHeading}
@@ -191,19 +128,19 @@ export default function UserHome() {
                 DislikeJobs={DislikeJobs}
                 setDislikeJobs={setDislikeJobs}
               />
-            </Flex>
-            <Box p={5}>
+            </div>
+            <div className="p-5 bg-gray-100">
               <Pagination
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
               />
-            </Box>
-          </Box>
+            </div>
+          </div>
         )}
 
         {!userProfile && <UserProfile user={user} />}
-      </Box>
+      </div>
     </>
   );
 }

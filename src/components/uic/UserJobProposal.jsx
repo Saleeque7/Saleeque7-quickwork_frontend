@@ -1,27 +1,27 @@
-import { Flex, Box, Text, Button } from "@chakra-ui/react";
+import React from "react";
 
 export default function UserJobProposal() {
   const profileImage = null;
   return (
-    <Box boxShadow="md" p={4} borderRadius="md" bg="white" mb={4}>
-      <Flex alignItems="center">
+    <div className="shadow-md p-4 rounded-md bg-white mb-4 text-left">
+      <div className="flex items-center mb-8">
         {/* Left side: User photo */}
-        <Box mr={4}>
+        <div className="mr-4 flex-shrink-0">
           <img
-            src={profileImage}
+            src={profileImage || "https://via.placeholder.com/80"}
             alt="User Profile"
-            style={{ width: "80px", borderRadius: "50%" }}
+            className="w-20 h-20 rounded-full object-cover border border-gray-200"
           />
-        </Box>
+        </div>
 
         {/* Right side: User details */}
-        <Box>
+        <div>
           {/* User name and role */}
-          <Text fontWeight="bold">saleeque</Text>
-          <Text>FullStack developer</Text>
+          <h3 className="font-bold text-gray-800">saleeque</h3>
+          <p className="text-sm text-gray-500">FullStack developer</p>
 
           {/* Cover letter */}
-          <Text mt={2}>
+          <p className="mt-2 text-gray-700">
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat
             harum eum possimus beatae quis eveniet nesciunt nihil optio nemo,
             quidem consequatur culpa expedita hic ducimus rem suscipit dicta
@@ -33,43 +33,54 @@ export default function UserJobProposal() {
             laudantium repellendus nihil asperiores dolores culpa nostrum
             praesentium sint delectus neque odit exercitationem, molestias
             dolorem vel iste voluptate est. Provident.
-          </Text>
+          </p>
 
           {/* Skills */}
-          <Text mt={2}>
+          <p className="mt-2 text-sm text-gray-600">
             <strong>Skills:</strong> uniqueskill
-          </Text>
+          </p>
 
           {/* Hourly rate */}
-          <Text mt={2}>
+          <p className="mt-2 text-sm text-gray-600">
             <strong>Hourly Rate:</strong> 100
-          </Text>
+          </p>
 
           {/* Buttons: Message and Hire */}
-          <Flex justifyContent={"flex-end"}>
-            <Button mr={2}>Message</Button>
-            <Button colorScheme="teal">Hire</Button>
-          </Flex>
-        </Box>
-      </Flex>
-      <Flex alignItems="center">
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              className="mr-2 px-4 py-2 border border-gray-300 rounded font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Message
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+            >
+              Hire
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center">
         {/* Left side: User photo */}
-        <Box mr={4}>
+        <div className="mr-4 flex-shrink-0">
           <img
-            src={profileImage}
+            src={profileImage || "https://via.placeholder.com/80"}
             alt="User Profile"
-            style={{ width: "80px", borderRadius: "50%" }}
+            className="w-20 h-20 rounded-full object-cover border border-gray-200"
           />
-        </Box>
+        </div>
 
         {/* Right side: User details */}
-        <Box>
+        <div>
           {/* User name and role */}
-          <Text fontWeight="bold">saleeque</Text>
-          <Text>FullStack developer</Text>
+          <h3 className="font-bold text-gray-800">saleeque</h3>
+          <p className="text-sm text-gray-500">FullStack developer</p>
 
           {/* Cover letter */}
-          <Text mt={2}>
+          <p className="mt-2 text-gray-700">
             Lorem ipsum dolor sit, amet consectetur adipisicing elit. Repellat
             harum eum possimus beatae quis eveniet nesciunt nihil optio nemo,
             quidem consequatur culpa expedita hic ducimus rem suscipit dicta
@@ -81,25 +92,35 @@ export default function UserJobProposal() {
             laudantium repellendus nihil asperiores dolores culpa nostrum
             praesentium sint delectus neque odit exercitationem, molestias
             dolorem vel iste voluptate est. Provident.
-          </Text>
+          </p>
 
           {/* Skills */}
-          <Text mt={2}>
+          <p className="mt-2 text-sm text-gray-600">
             <strong>Skills:</strong> uniqueskill
-          </Text>
+          </p>
 
           {/* Hourly rate */}
-          <Text mt={2}>
+          <p className="mt-2 text-sm text-gray-600">
             <strong>Hourly Rate:</strong> 100
-          </Text>
+          </p>
 
           {/* Buttons: Message and Hire */}
-          <Flex justifyContent={"flex-end"}>
-            <Button mr={2}>Message</Button>
-            <Button colorScheme="teal">Hire</Button>
-          </Flex>
-        </Box>
-      </Flex>
-    </Box>
+          <div className="flex justify-end mt-4">
+            <button
+              type="button"
+              className="mr-2 px-4 py-2 border border-gray-300 rounded font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              Message
+            </button>
+            <button
+              type="button"
+              className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded font-semibold transition-colors cursor-pointer"
+            >
+              Hire
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

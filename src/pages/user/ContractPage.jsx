@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Divider } from "@chakra-ui/react";
 import { MdCurrencyRupee } from "react-icons/md";
 import { userAxiosInstance } from "../../utils/api/privateAxios";
 import { browseContractDetails, ContractActionApi } from "../../utils/api/api";
@@ -164,12 +163,12 @@ export default function ViewContract() {
                   {timeAgo(contract.createdAt) || ""}
                 </span>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <p>{contract?.jobId?.description || ""}</p>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <div className="flex items-center mb-2">
@@ -184,7 +183,7 @@ export default function ViewContract() {
                   </span>
                 </div>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               <div className="m-5">
                 {contract?.paymentOption === "fullPay" ? (
                   <div>
@@ -240,7 +239,7 @@ export default function ViewContract() {
                   </div>
                 )}
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
               <div className="flex justify-between">
                 <div className="m-5">
                   <h2 className="font-sans font-semibold text-md mb-3">
@@ -300,12 +299,12 @@ export default function ViewContract() {
                   {timeAgo(contract?.jobId?.createdAt) || ""}
                 </span>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <p>{contract?.jobId?.description || ""}</p>
               </div>
-              <Divider className="my-4" />
+              <hr className="my-4 border-gray-200" />
 
               <div className="m-5">
                 <h2 className="font-sans font-semibold text-md mb-3">
@@ -324,9 +323,8 @@ export default function ViewContract() {
               </div>
             </section>
           </div>
-          <div className="w-1/12">
-            <Divider
-              orientation="vertical"
+          <div className="w-1/12 flex justify-center">
+            <div
               className="h-full bg-gray-200"
               style={{ width: "2px" }}
             />
